@@ -1,6 +1,7 @@
 package net.engineeringdigest.journalApp.Controllers;
 
 
+import lombok.extern.slf4j.Slf4j;
 import net.engineeringdigest.journalApp.Entities.ParkingIssueRequest;
 import net.engineeringdigest.journalApp.Entities.UserEntity;
 import net.engineeringdigest.journalApp.Entities.Vehicle;
@@ -18,6 +19,7 @@ import java.util.Optional;
 
 @RestController
 @RequestMapping("/user")
+@Slf4j
 public class UserController {
 	
 	
@@ -63,23 +65,27 @@ public class UserController {
 	
 	@GetMapping("/UrgentCall")
 	public ResponseEntity<?> callUser(@RequestBody Vehicle user){
-		String plateNo=user.getPlateNo();
-		
-		if (plateNo!=null) {
-			UserEntity vehicleOwner = userService.findUserByPlateNo(plateNo);
-			// Increment complaint count
-			vehicleOwner.setComplaintsCount(vehicleOwner.getComplaintsCount() + 1);
-			userRepository.save(vehicleOwner);
-			
-			// Send alert email if complaints reach 5
-			if (vehicleOwner.getComplaintsCount() >= 5) {
-				emailService.sendAlert(vehicleOwner, plateNo);
+		try {
+			String plateNo = user.getPlateNo();
+			if (plateNo != null) {
+				UserEntity vehicleOwner = userService.findUserByPlateNo(plateNo);
+				// Increment complaint count
+				vehicleOwner.setComplaintsCount(vehicleOwner.getComplaintsCount() + 1);
+				userRepository.save(vehicleOwner);
+				
+				// Send alert email if complaints reach 5
+				if (vehicleOwner.getComplaintsCount() >= 5) {
+					emailService.sendAlert(vehicleOwner, plateNo);
+				}
+				UserEntity found = userService.findUserByPlateNo(plateNo);
+				userService.makeCall(found.getPhoneNo(), plateNo);
+				return new ResponseEntity<>("Calling user successfully ", HttpStatus.FOUND);
+			} else {
+				return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
 			}
-			UserEntity found = userService.findUserByPlateNo(plateNo);
-			userService.makeCall(found.getPhoneNo(), plateNo);
-			return new ResponseEntity<>("Calling user successfully ",HttpStatus.FOUND);
 		}
-		else {
+		catch (Exception e){
+			log.error("Error while calling ",e);
 			return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
 		}
 	}
