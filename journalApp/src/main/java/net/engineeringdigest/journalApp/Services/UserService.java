@@ -3,7 +3,6 @@ package net.engineeringdigest.journalApp.Services;
 
 import com.twilio.rest.api.v2010.account.Call;
 import com.twilio.rest.api.v2010.account.Message;
-import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import net.engineeringdigest.journalApp.Entities.ParkingIssueRequest;
 import net.engineeringdigest.journalApp.Entities.UserEntity;
