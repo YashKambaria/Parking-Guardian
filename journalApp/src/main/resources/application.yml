@@ -1,4 +1,9 @@
 spring:
+  web:
+    cors:
+      allowed-origins: "*"
+      allowed-methods: "*"
+      allowed-headers: "*"
   data:
     mongodb:
       uri: ${MONGO_URI}
