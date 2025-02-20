@@ -7,8 +7,10 @@ import lombok.NoArgsConstructor;
 import lombok.NonNull;
 import org.bson.types.ObjectId;
 import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+import java.time.Instant;
 import java.util.List;
 
 @Document(collection = "users")
@@ -28,5 +30,7 @@ public class UserEntity {
 	@NonNull
 	private String email;
 	private List<String> roles;
+	private String OTP;
+	private Instant otpExpiryTime;
 	private int complaintsCount = 0;
 }

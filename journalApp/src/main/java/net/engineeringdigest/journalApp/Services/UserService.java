@@ -14,9 +14,7 @@ import org.springframework.stereotype.Service;
 import com.twilio.Twilio;
 import com.twilio.type.PhoneNumber;
 import javax.annotation.PostConstruct;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 
 @Slf4j
@@ -30,11 +28,13 @@ public class UserService {
 	@Value("${Twilio.NUMBER}")
 	private String FROM_NUMBER;
 	
+	
 	@Autowired
 	public UserRepository userRepository;
 	
 	@Autowired
 	public PasswordEncoder passwordEncoder;
+	
 	
 	public boolean saveUser(UserEntity userEntity) {
 		try{
@@ -128,6 +128,11 @@ public class UserService {
 	
 	public void deleteByUserName(String name) {
 		userRepository.deleteByUsername(name);
+	}
+	public String generateOTP(){
+		Random random=new Random();
+		int otpvalue=100000+random.nextInt(900000);
+		return String.valueOf(otpvalue);
 	}
 	
 	
