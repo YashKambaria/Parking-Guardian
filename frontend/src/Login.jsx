@@ -1,4 +1,5 @@
 import { useState } from "react";
+import axios from "axios";
 
 export default function Login() {
     const [username, setUsername] = useState("");
@@ -15,14 +16,27 @@ export default function Login() {
         }
 
         try {
-            // Mock JWT token (Replace with actual API call in real apps)
-            const fakeJWT = btoa(JSON.stringify({ user: username, exp: Date.now() + 3600000 })); // Expiry: 1 hour
-            localStorage.setItem("token", fakeJWT);
+            const response = await axios.post(
+                "http://localhost:8080/public/login",
+                { username, password },
+                {
+                    headers: { "Content-Type": "application/json" },
+                    responseType: "text", // Ensure response is treated as plain text
+                }
+            );
+
+            // The response is a plain string (JWT token)
+            const token = response.data; 
+
+            if (!token) throw new Error("Invalid response from server");
+
+            // Store token in localStorage
+            localStorage.setItem("token", token);
 
             alert("Login Successful!");
             window.location.href = "/"; // Redirect to home page
         } catch (err) {
-            setError("Login failed. Try again.");
+            setError(err.response?.data || "Login failed. Try again.");
         }
     };
 
