@@ -4,6 +4,7 @@ package net.engineeringdigest.journalApp.Services;
 import com.twilio.rest.api.v2010.account.Call;
 import com.twilio.rest.api.v2010.account.Message;
 import lombok.extern.slf4j.Slf4j;
+import net.engineeringdigest.journalApp.Entities.Complains;
 import net.engineeringdigest.journalApp.Entities.ParkingIssueRequest;
 import net.engineeringdigest.journalApp.Entities.UserEntity;
 import net.engineeringdigest.journalApp.Repositories.UserRepository;
@@ -14,20 +15,13 @@ import org.springframework.stereotype.Service;
 import com.twilio.Twilio;
 import com.twilio.type.PhoneNumber;
 import javax.annotation.PostConstruct;
+import java.time.Instant;
 import java.util.*;
 
 
 @Slf4j
 @Service
 public class UserService {
-	
-	@Value("${Twilio.SID}")
-	private String SID_ACCOUNT;
-	@Value("${Twilio.ID}")
-	private String AUTH_ID;
-	@Value("${Twilio.NUMBER}")
-	private String FROM_NUMBER;
-	
 	
 	@Autowired
 	public UserRepository userRepository;
@@ -65,53 +59,6 @@ public class UserService {
 		return byPlateNo.get();
 	}
 	
-	@PostConstruct
-	public void setup(){
-		Twilio.init(SID_ACCOUNT,AUTH_ID);
-	}
-	public String sendSMS(ParkingIssueRequest request) {
-		Optional<UserEntity> user1 = userRepository.findByPlateNo(request.getPlateNo());
-		String phoneNo = user1.get().getPhoneNo();
-		String googleMapsLink = "https://www.google.com/maps?q=" + request.getLatitude() + "," + request.getLongitude();
-		
-		String carModel=userRepository.findByPlateNo(request.getPlateNo())
-				.map(user -> user.getVehicles().stream()
-						.filter(vehicle -> vehicle.getPlateNo().equals(request.getPlateNo()))
-						.map(vehicle -> vehicle.getCarModel())
-						.findFirst()
-						.orElse(null)) // Handle case where no vehicle is found
-				.orElse(null);  // Handle case where no user is found
-		
-		String message = "Your " + carModel + "(Plate: " + request.getPlateNo() + ") is blocking a spot. Please move it! Location: " + googleMapsLink;
-		
-		Message.creator(
-				new PhoneNumber(phoneNo),
-				new PhoneNumber(FROM_NUMBER),
-				message).create();
-		
-		return "Message Sent successfully";
-		
-	}
-	public void makeCall(String userPhoneNumber, String plateNo) {
-		try {
-			String carModel = userRepository.findByPlateNo(plateNo)
-					.map(user -> user.getVehicles().stream()
-							.filter(vehicle -> vehicle.getPlateNo().equals(plateNo))
-							.map(vehicle -> vehicle.getCarModel())
-							.findFirst()
-							.orElse(null)) // Handle case where no vehicle is found
-					.orElse(null);
-			Call.creator(
-					new PhoneNumber(userPhoneNumber),
-					new PhoneNumber(FROM_NUMBER),
-					new com.twilio.type.Twiml("<Response><Say>Your" + carModel+ " is blocking a vehicle. Please move it.\"!</Say></Response>")
-			).create();
-		}
-		catch (Exception e){
-			log.error("CALLING EXCEPTION ______________------------",e);
-		}
-	}
-	
 	// Validate user details before saving
 	public String validateUser(UserEntity user) {
 		if (userRepository.existsByUsername(user.getUsername())) {
@@ -129,11 +76,8 @@ public class UserService {
 	public void deleteByUserName(String name) {
 		userRepository.deleteByUsername(name);
 	}
-	public String generateOTP(){
-		Random random=new Random();
-		int otpvalue=100000+random.nextInt(900000);
-		return String.valueOf(otpvalue);
-	}
+	
+	
 	
 	
 }

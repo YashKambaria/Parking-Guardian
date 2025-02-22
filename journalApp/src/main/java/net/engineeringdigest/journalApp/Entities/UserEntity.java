@@ -11,6 +11,7 @@ import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.List;
 
 @Document(collection = "users")
@@ -33,4 +34,5 @@ public class UserEntity {
 	private String OTP;
 	private Instant otpExpiryTime;
 	private int complaintsCount = 0;
+	private List<Complains> history=new ArrayList<>();
 }
