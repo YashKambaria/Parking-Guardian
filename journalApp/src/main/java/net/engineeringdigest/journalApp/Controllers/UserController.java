@@ -25,6 +25,7 @@ import java.util.Optional;
 @RestController
 @RequestMapping("/user")
 @Slf4j
+@CrossOrigin(origins = "http://localhost:5173")
 public class UserController {
 	
 	@Autowired
@@ -47,37 +48,33 @@ public class UserController {
 	
 	
 	//this is used when the user will do the complain due to traffic
-	@GetMapping("/sendSMS")
-	public ResponseEntity<?> sendMessage(@RequestBody ParkingIssueRequest request){
+	@PostMapping("/sendSMS")
+	public ResponseEntity<?> sendMessage(@RequestBody ParkingIssueRequest request) {
 		try {
-			Authentication authentication=SecurityContextHolder.getContext().getAuthentication();
-			String FromUsername=authentication.getName();
+			Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+			String fromUsername = authentication.getName();
 			Optional<UserEntity> user = userRepository.findByPlateNo(request.getPlateNo());
+			
 			if (user.isPresent()) {
 				UserEntity vehicleOwner = user.get();
-				// Increment complaint count
 				vehicleOwner.setComplaintsCount(vehicleOwner.getComplaintsCount() + 1);
 				userRepository.save(vehicleOwner);
 				
-				// Send alert email if complaints reach 5
 				if (vehicleOwner.getComplaintsCount() >= 5) {
-					emailService.sendAlert(vehicleOwner,request);
+					emailService.sendAlert(vehicleOwner, request);
 				}
 				
-				
-				String s = phoneService.sendSMS(request,FromUsername);
-				return new ResponseEntity<>(s,HttpStatus.OK);
-			}
-			else{
+				String s = phoneService.sendSMS(request, fromUsername);
+				return new ResponseEntity<>(s, HttpStatus.OK);
+			} else {
 				return ResponseEntity.badRequest().body("User not found!");
 			}
-		}
-		catch (Exception e) {
-			return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+		} catch (Exception e) {
+			return ResponseEntity.badRequest().body("Error processing request");
 		}
 	}
 	
-	@GetMapping("/UrgentCall")
+	@PostMapping("/UrgentCall")
 	public ResponseEntity<?> callUser(@RequestBody ParkingIssueRequest request){
 		try {
 			String plateNo = request.getPlateNo();
@@ -93,7 +90,6 @@ public class UserController {
 				if (vehicleOwner.getComplaintsCount() >= 5) {
 					emailService.sendAlert(vehicleOwner, plateNo);
 				}
-//				UserEntity found = userService.findUserByPlateNo(plateNo);
 				phoneService.makeCall(FromUsername,request);
 				return new ResponseEntity<>("Calling user successfully ", HttpStatus.FOUND);
 			} else {

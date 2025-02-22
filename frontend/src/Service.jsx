@@ -1,29 +1,82 @@
 import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import axios from "axios";
 
 export default function Service({ darkMode }) {
   const [stateCode, setStateCode] = useState("GJ");
   const [carNumber, setCarNumber] = useState("");
   const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
   const [showSlide, setShowSlide] = useState("sms");
 
   // Regex for Indian vehicle plate (e.g., GJ 05 AB 1234)
   const plateRegex = /^[0-9]{2}\s?[A-Z]{1,2}\s?[0-9]{1,4}$/;
 
-  const handleSubmit = () => {
+  const handleSubmit = async (type) => {
     const trimmedCarNumber = carNumber.toUpperCase().trim();
 
     if (!plateRegex.test(trimmedCarNumber)) {
       setError("Invalid vehicle number format! Use '05 AB 1234'.");
-    } else {
-      setError("");
-      alert(`Complaint submitted for vehicle: ${stateCode} ${trimmedCarNumber}`);
+      return;
     }
-  };
 
-  function changeService(currService) {
-    setShowSlide(currService);
-  }
+    setError(""); // Clear previous errors
+    setLoading(true); // Show loading state
+
+    // Get JWT Token from localStorage
+    const token = localStorage.getItem("token");
+    if (!token) {
+      setError("You must be logged in to submit a complaint.");
+      setLoading(false);
+      return;
+    }
+
+    // Get User Location (Geolocation API)
+    if (!navigator.geolocation) {
+      setError("Geolocation is not supported by your browser.");
+      setLoading(false);
+      return;
+    }
+
+    navigator.geolocation.getCurrentPosition(
+      async (position) => {
+        const latitude = position.coords.latitude;
+        const longitude = position.coords.longitude;
+
+        const requestBody = {
+          plateNo: `${stateCode} ${trimmedCarNumber}`,
+          latitude,
+          longitude,
+        };
+
+        try {
+          const url =
+            type === "sms" ? "http://localhost:8080/user/sendSMS" : "http://localhost:8080/user/UrgentCall";
+
+          const response = await axios.post(url, requestBody, {
+            headers: {
+              Authorization: `Bearer ${token}`,
+              "Content-Type": "application/json",
+            },
+          });
+
+          alert(
+            type === "sms"
+              ? `📩 SMS Sent Successfully!`
+              : `📞 Call Triggered Successfully!`
+          );
+        } catch (err) {
+          setError(err.response?.data || "Failed to send request. Try again.");
+        } finally {
+          setLoading(false);
+        }
+      },
+      (error) => {
+        setError("Failed to get location. Please enable GPS.");
+        setLoading(false);
+      }
+    );
+  };
 
   return (
     <div
@@ -36,11 +89,11 @@ export default function Service({ darkMode }) {
         {["sms", "call"].map((service) => (
           <motion.div
             key={service}
-            onClick={() => changeService(service)}
+            onClick={() => setShowSlide(service)}
             className={`cursor-pointer relative px-6 py-2 rounded-lg transition duration-300 text-sm font-semibold
               ${showSlide === service ? "text-blue-600" : "text-gray-500"} `}
-            whileHover={{ scale: 1 }}
-            whileTap={{ scale: 0.8 }}
+            whileHover={{ scale: 1.1 }}
+            whileTap={{ scale: 0.9 }}
           >
             {service.toUpperCase()}
             {showSlide === service && (
@@ -113,15 +166,6 @@ export default function Service({ darkMode }) {
                   </select>
                 </motion.div>
 
-                {/* Dash (-) Separator */}
-                <span
-                  className={`h-10 flex items-center px-2 font-semibold text-lg ${
-                    darkMode ? "bg-gray-700 text-white" : "bg-gray-200 text-gray-900"
-                  }`}
-                >
-                  -
-                </span>
-
                 {/* Car Number Input */}
                 <input
                   type="text"
@@ -140,12 +184,13 @@ export default function Service({ darkMode }) {
 
               {/* Submit Button */}
               <motion.button
-                onClick={handleSubmit}
+                onClick={() => handleSubmit(showSlide)}
                 className="mt-6 w-full py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg font-semibold transition duration-200"
                 whileHover={{ scale: 1.03 }}
                 whileTap={{ scale: 0.95 }}
+                disabled={loading}
               >
-                {showSlide === "sms" ? "Submit Complaint" : "Call for Complaint"}
+                {loading ? "Processing..." : showSlide === "sms" ? "Send SMS" : "Call User"}
               </motion.button>
             </div>
           </motion.div>
