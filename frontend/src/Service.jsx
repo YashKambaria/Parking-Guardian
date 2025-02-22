@@ -8,8 +8,8 @@ export default function Service({ darkMode }) {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [showSlide, setShowSlide] = useState("sms");
+  const [alertMessage, setAlertMessage] = useState(null); // Alert state
 
-  // Regex for Indian vehicle plate (e.g., GJ 05 AB 1234)
   const plateRegex = /^[0-9]{2}\s?[A-Z]{1,2}\s?[0-9]{1,4}$/;
 
   const handleSubmit = async (type) => {
@@ -20,10 +20,9 @@ export default function Service({ darkMode }) {
       return;
     }
 
-    setError(""); // Clear previous errors
-    setLoading(true); // Show loading state
+    setError("");
+    setLoading(true);
 
-    // Get JWT Token from localStorage
     const token = localStorage.getItem("token");
     if (!token) {
       setError("You must be logged in to submit a complaint.");
@@ -31,7 +30,6 @@ export default function Service({ darkMode }) {
       return;
     }
 
-    // Get User Location (Geolocation API)
     if (!navigator.geolocation) {
       setError("Geolocation is not supported by your browser.");
       setLoading(false);
@@ -53,25 +51,27 @@ export default function Service({ darkMode }) {
           const url =
             type === "sms" ? "http://localhost:8080/user/sendSMS" : "http://localhost:8080/user/UrgentCall";
 
-          const response = await axios.post(url, requestBody, {
+          await axios.post(url, requestBody, {
             headers: {
               Authorization: `Bearer ${token}`,
               "Content-Type": "application/json",
             },
           });
 
-          alert(
-            type === "sms"
-              ? `📩 SMS Sent Successfully!`
-              : `📞 Call Triggered Successfully!`
-          );
+          // Set alert message
+          setAlertMessage(type === "sms" ? "📩 SMS Sent Successfully!" : "📞 Call Triggered Successfully!");
+
+          // Auto-dismiss alert after 5 seconds
+          setTimeout(() => {
+            setAlertMessage(null);
+          }, 5000);
         } catch (err) {
           setError(err.response?.data || "Failed to send request. Try again.");
         } finally {
           setLoading(false);
         }
       },
-      (error) => {
+      () => {
         setError("Failed to get location. Please enable GPS.");
         setLoading(false);
       }
@@ -79,10 +79,24 @@ export default function Service({ darkMode }) {
   };
 
   return (
-    <div
-      className={`service_container min-h-screen flex flex-col mt-18 items-center transition-colors duration-300 
-      ${darkMode ? "bg-gray-900 text-white" : "bg-gray-50 text-gray-900"}`}
-    >
+    <div className={`service_container min-h-screen flex flex-col mt-18 items-center transition-colors duration-300 
+      ${darkMode ? "bg-gray-900 text-white" : "bg-gray-50 text-gray-900"}`}>
+
+      {/* Alert Notification */}
+      <AnimatePresence>
+        {alertMessage && (
+          <motion.div
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -20 }}
+            transition={{ duration: 0.5 }}
+            className="fixed top-5 left-1/2 transform -translate-x-1/2 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg text-center z-50"
+          >
+            {alertMessage}
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       {/* Navbar with Animated Tabs */}
       <div className={`relative flex justify-center space-x-6 mt-10 rounded-lg py-3 w-50 shadow-md transition-colors duration-300 
         bg-opacity-90 backdrop-blur-md px-6 ${darkMode ? "bg-gray-800" : "bg-white"}`}>
@@ -107,10 +121,9 @@ export default function Service({ darkMode }) {
       </div>
 
       {/* Animated Content Change */}
-      <motion.div
-        className={`container mx-auto mt-12 max-w-3xl p-6 rounded-lg shadow-lg overflow-hidden
-        ${darkMode ? "bg-gray-800 text-white" : "bg-white text-gray-900"}`}
-      >
+      <motion.div className={`container mx-auto mt-12 max-w-3xl p-6 rounded-lg shadow-lg overflow-hidden
+        ${darkMode ? "bg-gray-800 text-white" : "bg-white text-gray-900"}`}>
+
         <AnimatePresence mode="wait">
           <motion.div
             key={showSlide}
@@ -124,11 +137,7 @@ export default function Service({ darkMode }) {
             </h1>
             <hr className="my-4 border-gray-400" />
 
-            <div
-              className={`p-4 rounded-lg transition-all ${
-                darkMode ? "bg-gray-700 text-gray-300" : "bg-gray-100 text-gray-700"
-              }`}
-            >
+            <div className={`p-4 rounded-lg transition-all ${darkMode ? "bg-gray-700 text-gray-300" : "bg-gray-100 text-gray-700"}`}>
               <h3 className="text-lg font-semibold">Instructions:</h3>
               <p className="mt-2">
                 Enter the vehicle number in the correct format: <strong>XX 00 XX 0000</strong>.
@@ -141,9 +150,7 @@ export default function Service({ darkMode }) {
               <div className="flex mt-4 items-center">
                 {/* State Code Dropdown */}
                 <motion.div
-                  className={`relative flex items-center rounded-l-md h-10 ${
-                    darkMode ? "bg-gray-700" : "bg-gray-200"
-                  } border-r border-gray-400`}
+                  className={`relative flex items-center rounded-l-md h-10 ${darkMode ? "bg-gray-700" : "bg-gray-200"} border-r border-gray-400`}
                   initial={{ scale: 0.9 }}
                   animate={{ scale: 1 }}
                   transition={{ duration: 0.3, delay: 0.3 }}
@@ -173,9 +180,7 @@ export default function Service({ darkMode }) {
                   onChange={(e) => setCarNumber(e.target.value.toUpperCase())}
                   placeholder="05 AB 1234"
                   maxLength="10"
-                  className={`w-full p-2 rounded-r-md focus:outline-none h-10 ${
-                    darkMode ? "bg-gray-700 text-white" : "bg-gray-200 text-gray-900"
-                  }`}
+                  className={`w-full p-2 rounded-r-md focus:outline-none h-10 ${darkMode ? "bg-gray-700 text-white" : "bg-gray-200 text-gray-900"}`}
                 />
               </div>
 
