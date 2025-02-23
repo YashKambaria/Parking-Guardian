@@ -12,7 +12,8 @@ export default function HomeCard({ setImageLeft, darkMode, card_image, card_cont
     let icons = {
         message: (<i className="fa-regular fa-message fa-bounce" style={card_icon_style}></i>),
         call: (<i className="fa-solid fa-phone-volume fa-shake" style={card_icon_style}></i>),
-        location: (<i class="fa-solid fa-location-dot fa-bounce"></i>),
+        location: (<i className="fa-solid fa-location-dot fa-bounce" style={card_icon_style}></i>),
+        mail: (<i className="fa-regular fa-envelope fa-beat" style={card_icon_style}></i>),
     };
 
     return setImageLeft ? (
@@ -57,7 +58,7 @@ export default function HomeCard({ setImageLeft, darkMode, card_image, card_cont
                 <img
                     src={card_image}
                     alt="Card Image"
-                    className="h-50 w-auto rounded-lg object-cover"
+                    className="h-40 w-auto rounded-lg object-cover"
                 />
             )}
             <div className="p-6">

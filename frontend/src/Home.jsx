@@ -3,12 +3,14 @@ import HomeCard from "./HomeCard";
 import chatting_image from "./assets/chatting.svg"
 import calling_image from "./assets/calling.svg"
 import location_image from "./assets/location.svg"
+import mail_image from "./assets/mail.svg"
 
 export default function Home({ darkMode }) {
-    let card_icon = ['message', 'call', 'location']
+    let card_icon = ['message', 'call', 'location','mail']
     let card_head1 = "Messaging & Location-Based Alerts";
     let card_head2 = "Automated Call Alerts";
     let card_head3 = "Google Maps Link in SMS Alerts";
+    let card_head4 = "Automated Email Alerts";
     let card_content1 = [
         "The Messaging & Location-Based Alert System enhances user engagement by sending real-time notifications, complaint updates, and location details for better issue resolution.",
         "✅ Real-Time Alerts: Users receive instant notifications when their complaint is updated or resolved.",
@@ -23,6 +25,12 @@ export default function Home({ darkMode }) {
         "✅ Location-Based Alerts: When a complaint is submitted, the system generates a Google Maps link with the vehicle’s precise location.",
         "✅ Direct Navigation: Vehicle owners can click the link in the SMS to open Google Maps and navigate directly to their vehicle.",
         "✅ Enhanced Clarity: Instead of just text-based complaints, the location link helps owners identify where their vehicle is parked in relation to the issue."
+    ]
+    let card_content4 =[
+        "The Automated Email Alert system notifies vehicle owners when their vehicle receives multiple complaints, ensuring timely action.",
+        "✅ Threshold-Based Alerts: An email is sent automatically when a vehicle reaches five complaints.",
+        "✅ Complaint Details: The email includes vehicle number, total complaints, and reported locations.",
+        "✅ Owner Notification: Encourages responsible parking by keeping owners informed. 🚗📩"
     ]
 
     return (
@@ -50,6 +58,13 @@ export default function Home({ darkMode }) {
                 card_content = { card_content3 }
                 card_head = { card_head3 }
                 card_icon = { card_icon[2] } />
+                <HomeCard
+                setImageLeft = {false}
+                darkMode = { darkMode }
+                card_image = { mail_image }
+                card_content = { card_content4 }
+                card_head = { card_head4 }
+                card_icon = { card_icon[3] } />
             </div>
         </>
     )
