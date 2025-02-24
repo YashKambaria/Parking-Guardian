@@ -1,27 +1,52 @@
 import React, { useEffect, useState } from "react";
 
 export default function General({ darkMode }) {
-    const [vehicles, setVehicles] = useState([
-        { plate: "GJ01AB1234", name: "Honda City" }
-    ]);
+    const [vehicles, setVehicles] = useState([]);
     const [emailVerified, setEmailVerified] = useState(false);
     const [phoneVerified, setPhoneVerified] = useState(false);
     const [showModal, setShowModal] = useState(false);
     const [newPlate, setNewPlate] = useState("");
     const [newCarName, setNewCarName] = useState("");
     const [isEditing, setIsEditing] = useState(false);
-    const [userInfo, setUserInfo] = useState({
-        username: "johndoe",
-        email: "johndoe@example.com",
-        phone: "+91 98765 43210",
-        password: "********"
-    });
+    const [userInfo, setUserInfo] = useState({});
     const [otp, setOtp] = useState("");
     const [verifyingField, setVerifyingField] = useState(null);
 
+    useEffect(() => {
+        const fetchUserData = async () => {
+            const token = localStorage.getItem("token"); // Get JWT token
+
+            try {
+                const response = await fetch("http://localhost:8080/user/getUser", {
+                    method: "GET",
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                        "Content-Type": "application/json",
+                    },
+                });
+
+                if (!response.ok) {
+                    throw new Error("Failed to fetch user data");
+                }
+
+                const data = await response.json();
+                setUserInfo({
+                    username: data.username,
+                    email: data.email,
+                    phone: data.phoneNo,
+                });
+                setVehicles(data.vehicles); // Set vehicle list
+            } catch (error) {
+                console.error("Error fetching user data:", error);
+            }
+        };
+
+        fetchUserData();
+    }, [userInfo,vehicles]);
+
     const handleAddVehicle = () => {
         if (!newPlate || !newCarName) return;
-        setVehicles([...vehicles, { plate: newPlate, name: newCarName }]);
+        setVehicles([...vehicles, { plateNo: newPlate, carModel: newCarName }]);
         setNewPlate("");
         setNewCarName("");
         setShowModal(false);
@@ -31,15 +56,95 @@ export default function General({ darkMode }) {
         setIsEditing(false);
     };
 
-    const handleVerify = (field) => {
+    const handleVerify = async (field) => {
+        const token = localStorage.getItem("token"); // Get JWT token
+        let url = "";
+    
+        if (field === "email") {
+            url = "http://localhost:8080/user/sendOTPEmail";
+        } else if (field === "phone") {
+            url = "http://localhost:8080/user/sendOTPPhone";
+        }
+    
+        try {
+            const response = await fetch(url, {
+                method: "GET",
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                    "Content-Type": "application/json",
+                },
+            });
+    
+            const result = await response.text(); // Get response as plain text
+    
+            if (response.ok) {
+                alert(result); // Show success message from backend
+                if (field === "email") {
+                    setEmailVerified(false);
+                } else if (field === "phone") {
+                    setPhoneVerified(false);
+                }
+            } else {
+                alert(`Error: ${result}`); // Show error message from backend
+            }
+        } catch (error) {
+            console.error(`Error verifying ${field}:`, error);
+            alert("Something went wrong. Please try again.");
+        }
+    
         setVerifyingField(field);
     };
 
-    const checkValidation = () => {
-        if (verifyingField === "email") setEmailVerified(true);
-        else if (verifyingField === "phone") setPhoneVerified(true);
+
+
+    const checkValidation = async () => {
+        if (!verifyingField || !otp) {
+            alert("Please enter OTP before verifying.");
+            return;
+        }
+    
+        const token = localStorage.getItem("token"); // Get JWT token
+        let url = "";
+        let body = { otp };
+    
+        if (verifyingField === "email") {
+            url = "http://localhost:8080/user/verifyEmail"; // Modify based on your actual email verify endpoint
+        } else if (verifyingField === "phone") {
+            url = "http://localhost:8080/user/verifyPhone"; // Your phone OTP verification API
+        }
+    
+        try {
+            const response = await fetch(url, {
+                method: "POST",
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify(body),
+            });
+    
+            const result = await response.text(); // Get response as plain text
+            console.log(JSON.stringify(response));
+            
+            if (response.ok) {
+                alert(result); // Show success message
+                if (verifyingField === "email") {
+                    setEmailVerified(true);
+                } else if (verifyingField === "phone") {
+                    setPhoneVerified(true);
+                }
+            } else {
+                alert(`Error: ${result}`); // Show error message from backend
+            }
+        } catch (error) {
+            console.error(`Error verifying ${verifyingField}:`, error);
+            alert("Something went wrong. Please try again.");
+        }
+    
         setVerifyingField(null); // Reset after verification
     };
+
+
 
     useEffect(() => {}, [emailVerified, phoneVerified]); // Watch for state changes
 
@@ -161,7 +266,7 @@ export default function General({ darkMode }) {
                     <div className="space-y-4">
                         {vehicles.map((vehicle, index) => (
                             <div key={index} className={`flex justify-between items-center p-3 border rounded-md shadow-sm ${darkMode ? "bg-gray-700" : "bg-gray-100"}`}>
-                                <span className="font-medium">{vehicle.plate} - {vehicle.name}</span>
+                                <span className="font-medium">{vehicle.plateNo} - {vehicle.carModel}</span>
                             </div>
                         ))}
                     </div>
