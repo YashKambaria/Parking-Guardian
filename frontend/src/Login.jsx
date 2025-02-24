@@ -1,7 +1,10 @@
-import { useState } from "react";
+import { useContext, useState } from "react";
 import axios from "axios";
+import { AuthContext } from "./AuthContext";
 
 export default function Login() {
+
+    const { setToken } = useContext(AuthContext);
     const [username, setUsername] = useState("");
     const [password, setPassword] = useState("");
     const [error, setError] = useState("");
@@ -30,9 +33,11 @@ export default function Login() {
 
             if (!token) throw new Error("Invalid response from server");
 
+            setToken(token);
+
             // Store token in localStorage
             localStorage.setItem("token", token);
-
+            
             alert("Login Successful!");
             window.location.href = "/"; // Redirect to home page
         } catch (err) {
@@ -51,7 +56,7 @@ export default function Login() {
                     placeholder="Username"
                     value={username}
                     onChange={(e) => setUsername(e.target.value)}
-                    className="block border p-2 w-full rounded-md mb-2 focus:ring-2 focus:ring-blue-400"
+                    className="block border p-2 w-full rounded-md mb-2 focus:ring-2 focus:ring-blue-400 text-black"
                 />
 
                 {/* Password Input */}
@@ -60,7 +65,7 @@ export default function Login() {
                     placeholder="Password"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    className="block border p-2 w-full rounded-md mb-4 focus:ring-2 focus:ring-blue-400"
+                    className="block border p-2 w-full rounded-md mb-4 focus:ring-2 focus:ring-blue-400 text-black"
                 />
 
                 {/* Error Message */}

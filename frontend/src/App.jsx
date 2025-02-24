@@ -4,11 +4,13 @@ import Navbar from "./Navbar";
 import Home from "./Home";
 import Service from "./Service";
 import Login from "./Login"; // Import the Login component
+import { AuthProvider } from "./AuthContext";
 
 export default function App() {
     const [darkMode, setDarkMode] = useState(false);
 
     return (
+        <AuthProvider>
         <Router>
             <div className={darkMode ? "bg-gray-900 text-white min-h-screen" : "bg-white text-gray-900 min-h-screen"}>
                 
@@ -30,5 +32,6 @@ export default function App() {
                 </Routes>
             </div>
         </Router>
+        </AuthProvider>
     );
 }

@@ -1,9 +1,18 @@
-import { useState } from "react";
-import { Link } from "react-router-dom";
+import { useState, useContext } from "react";
+import { Link, useNavigate  } from "react-router-dom";
+import { AuthContext } from "./AuthContext";
 
 export default function Navbar({ darkMode, setDarkMode }) {
 
+  const { isLoggedIn } = useContext(AuthContext);
+
+   const navigate = useNavigate();
     const [loggedIn, setLoggedIn] = useState(true);
+    const handleLogout = () => {
+      localStorage.removeItem("token"); // Remove token from local storage
+      setLoggedIn(false); // Update state
+      navigate("/"); // Redirect to login page
+    };
 
   return (
     <nav className={`p-4 shadow-lg w-full fixed top-0 left-0 transition-colors z-50 duration-300 ${darkMode ? "bg-gray-900 text-white" : "bg-white text-gray-900"}`}>
@@ -26,14 +35,15 @@ export default function Navbar({ darkMode, setDarkMode }) {
         {/* Navigation Links */}
         <div className="space-x-6 flex items-center">
 
-            { loggedIn ? (
+            { isLoggedIn ? (
                 <>
                     <Link to={`/`} className="hover:text-blue-400 cursor-pointer">Home</Link>
                     <Link to={`/service`} className="hover:text-blue-400 cursor-pointer">Service</Link>
-                    <button className="hover:text-blue-400 cursor-pointer" onClick={() => setLoggedIn(false)}>Logout</button>
+                    <button className="hover:text-blue-400 cursor-pointer" onClick={handleLogout}>Logout</button>
                 </>
             ) : (
                 <>
+                    <Link to={`/`} className="hover:text-blue-400 cursor-pointer">Home</Link> 
                     <Link to={`/login`} className="hover:text-blue-400 cursor-pointer">Login</Link>
                     <Link to={`/signup`} className="hover:text-blue-400 cursor-pointer">Sign Up</Link>
                 </>
