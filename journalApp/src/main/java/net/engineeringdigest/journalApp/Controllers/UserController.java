@@ -17,10 +17,6 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.Instant;
-import java.time.temporal.ChronoUnit;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
 
 @RestController
 @RequestMapping("/user")
@@ -46,65 +42,7 @@ public class UserController {
 	@Autowired
 	public PhoneService phoneService;
 	
-	
-	//this is used when the user will do the complain due to traffic
-	@PostMapping("/sendSMS")
-	public ResponseEntity<?> sendMessage(@RequestBody ParkingIssueRequest request) {
-		try {
-			Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-			String fromUsername = authentication.getName();
-			Optional<UserEntity> user = userRepository.findByPlateNo(request.getPlateNo());
-			
-			if (user.isPresent()) {
-				UserEntity vehicleOwner = user.get();
-				vehicleOwner.setComplaintsCount(vehicleOwner.getComplaintsCount() + 1);
-				userRepository.save(vehicleOwner);
-				
-				if (vehicleOwner.getComplaintsCount() >= 5) {
-					emailService.sendAlert(vehicleOwner, request);
-				}
-				
-				String s = phoneService.sendSMS(request, fromUsername);
-				return new ResponseEntity<>(s, HttpStatus.OK);
-			} else {
-				return ResponseEntity.badRequest().body("User not found!");
-			}
-		} catch (Exception e) {
-			return ResponseEntity.badRequest().body("Error processing request");
-		}
-	}
-	
-	@PostMapping("/UrgentCall")
-	public ResponseEntity<?> callUser(@RequestBody ParkingIssueRequest request){
-		try {
-			String plateNo = request.getPlateNo();
-			if (plateNo != null) {
-				Authentication authentication=SecurityContextHolder.getContext().getAuthentication();
-				String FromUsername=authentication.getName();
-				UserEntity vehicleOwner = userService.findUserByPlateNo(plateNo);
-				// Increment complaint count
-				vehicleOwner.setComplaintsCount(vehicleOwner.getComplaintsCount() + 1);
-				userRepository.save(vehicleOwner);
-				
-				// Send alert email if complaints reach 5
-				if (vehicleOwner.getComplaintsCount() >= 5) {
-					emailService.sendAlert(vehicleOwner, plateNo);
-				}
-				phoneService.makeCall(FromUsername,request);
-				return new ResponseEntity<>("Calling user successfully ", HttpStatus.FOUND);
-			} else {
-				return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-			}
-		}
-		catch (Exception e){
-			log.error("Error while calling ",e);
-			return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-		}
-	}
-	
-	
-	
-	
+	//USER Verification started
 	@GetMapping("/sendOTPEmail")
 	public ResponseEntity<?> generateOTP(){
 		try {
@@ -155,8 +93,6 @@ public class UserController {
 	}
 	
 	
-	
-	
 	@PostMapping("/verifyEmail")
 	public ResponseEntity<?> verifyEmail(@RequestBody OtpValidate otpValidate){
 		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -169,7 +105,7 @@ public class UserController {
 				if (now.isBefore(user.getOtpExpiryTime())) {
 					user.setOTP(null);
 					userRepository.save(user);
-					return new ResponseEntity<>("Email verified succesfully ", HttpStatus.ACCEPTED);
+					return new ResponseEntity<>("Email verified successfully ", HttpStatus.ACCEPTED);
 				}
 				else {
 					return new ResponseEntity<>("OTP is expired please Regenerate it",HttpStatus.EXPECTATION_FAILED);
@@ -183,6 +119,7 @@ public class UserController {
 			return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
 		}
 	}
+	
 	@PostMapping("/verifyPhone")
 	public ResponseEntity<?> verifyPhone(@RequestBody OtpValidate otpValidate){
 		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -209,7 +146,23 @@ public class UserController {
 			return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
 		}
 	}
+	//USER Verification ended
 	
+	//CRUD OPERATIOM FOR USER
+	@GetMapping("/getUser")
+	public ResponseEntity<?> getUser(){
+		try {
+			Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+			String name = authentication.getName();
+			UserEntity user = userRepository.findByUsername(name);
+			return new ResponseEntity<>(user, HttpStatus.OK);
+		}
+		catch (Exception e){
+			return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+		}
+	}
+	
+	@PostMapping("/")
 	
 	@DeleteMapping("/deleteUser")
 	public ResponseEntity<?> deleteUser(){
@@ -227,6 +180,5 @@ public class UserController {
 			return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
 		}
 	}
-	
 	
 }
