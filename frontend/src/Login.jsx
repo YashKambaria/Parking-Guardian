@@ -1,10 +1,11 @@
 import { useContext, useState } from "react";
 import axios from "axios";
 import { AuthContext } from "./AuthContext";
+import { Navigate, useNavigate } from "react-router-dom";
 
 export default function Login() {
-
-    const { setToken } = useContext(AuthContext);
+    const navigate = useNavigate();
+    const { setIsLoggedIn } = useContext(AuthContext);
     const [username, setUsername] = useState("");
     const [password, setPassword] = useState("");
     const [error, setError] = useState("");
@@ -28,18 +29,19 @@ export default function Login() {
                 }
             );
 
+            console.log("The response: " + JSON.stringify(response));
             // The response is a plain string (JWT token)
-            const token = response.data; 
+            const token = response.data;
 
-            if (!token) throw new Error("Invalid response from server");
-
-            setToken(token);
-
-            // Store token in localStorage
-            localStorage.setItem("token", token);
-            
-            alert("Login Successful!");
-            window.location.href = "/"; // Redirect to home page
+            if (response.status == 200) {
+                setIsLoggedIn(true);
+                localStorage.setItem("token", token);
+                alert("Login successful")
+                navigate("/"); // Redirect to home page
+            }
+            else {
+                alert("Login failed")
+            }
         } catch (err) {
             setError(err.response?.data || "Login failed. Try again.");
         }

@@ -1,17 +1,18 @@
 import { useState, useContext } from "react";
-import { Link, useNavigate  } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { AuthContext } from "./AuthContext";
 
 export default function Navbar({ darkMode, setDarkMode }) {
 
-  const { isLoggedIn } = useContext(AuthContext);
+  const { isLoggedIn, setIsLoggedIn } = useContext(AuthContext);
 
-   const navigate = useNavigate();
-    const [loggedIn, setLoggedIn] = useState(true);
+    console.log()
+
     const handleLogout = () => {
       localStorage.removeItem("token"); // Remove token from local storage
-      setLoggedIn(false); // Update state
-      navigate("/"); // Redirect to login page
+    //   setLoggedIn(false); // Update state
+    //   navigate("/"); // Redirect to login page
+        setIsLoggedIn(false);
     };
 
   return (
