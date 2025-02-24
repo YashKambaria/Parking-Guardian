@@ -12,6 +12,17 @@ export default function Service({ darkMode }) {
 
   const plateRegex = /^[0-9]{2}\s?[A-Z]{1,2}\s?[0-9]{1,4}$/;
 
+    const handleCarNumberChange = async (e) => {
+        if (e.target.value.toUpperCase().includes(' ')) {
+            setError("Car number cannot contain spaces")
+            setCarNumber(e.target.value.toUpperCase());
+        }
+        else {
+            setError("")
+            setCarNumber(e.target.value.toUpperCase());
+        }
+    }
+
   const handleSubmit = async (type) => {
     const trimmedCarNumber = carNumber.toUpperCase().trim();
 
@@ -177,8 +188,8 @@ export default function Service({ darkMode }) {
                 <input
                   type="text"
                   value={carNumber}
-                  onChange={(e) => setCarNumber(e.target.value.toUpperCase())}
-                  placeholder="05 AB 1234"
+                  onChange={(e) => handleCarNumberChange(e)}
+                  placeholder="05AB1234"
                   maxLength="10"
                   className={`w-full p-2 rounded-r-md focus:outline-none h-10 ${darkMode ? "bg-gray-700 text-white" : "bg-gray-200 text-gray-900"}`}
                 />

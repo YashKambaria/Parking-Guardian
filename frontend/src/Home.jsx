@@ -1,4 +1,5 @@
-import React from "react";
+import React, { useContext, useEffect } from "react";
+import { AuthContext } from "./AuthContext";
 import HomeCard from "./HomeCard";
 import chatting_image from "./assets/chatting.svg"
 import calling_image from "./assets/calling.svg"
@@ -6,6 +7,7 @@ import location_image from "./assets/location.svg"
 import mail_image from "./assets/mail.svg"
 
 export default function Home({ darkMode }) {
+
     let card_icon = ['message', 'call', 'location','mail']
     let card_head1 = "Messaging & Location-Based Alerts";
     let card_head2 = "Automated Call Alerts";

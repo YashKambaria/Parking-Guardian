@@ -1,14 +1,32 @@
-import { useContext, useState } from "react";
+import { useContext, useState, useEffect } from "react";
 import axios from "axios";
 import { AuthContext } from "./AuthContext";
 import { Navigate, useNavigate } from "react-router-dom";
 
 export default function Login() {
+    const { accessReason } = useContext(AuthContext);
     const navigate = useNavigate();
     const { setIsLoggedIn } = useContext(AuthContext);
     const [username, setUsername] = useState("");
     const [password, setPassword] = useState("");
     const [error, setError] = useState("");
+
+    let alertBox = "";
+    useEffect(() => {
+        if (accessReason == "!login") {
+            alertBox = (
+                <div className="fixed top-5 left-1/2 transform -translate-x-1/2 w-fit max-w-lg bg-red-600 text-white px-6 py-3 rounded-lg shadow-lg z-[9999] flex items-center justify-between animate-fade-in">
+                    <span className="font-semibold">You need to login first!</span>
+                    <button 
+                        className="ml-4 bg-red-800 px-2 py-1 rounded-md hover:bg-red-700 transition"
+                        onClick={() => setAlertMessage("")}
+                    >
+                        ✖
+                    </button>
+                </div>
+            )
+        }
+    })
 
     const handleLogin = async () => {
         setError("");
@@ -48,39 +66,42 @@ export default function Login() {
     };
 
     return (
-        <div className="flex justify-center items-center min-h-screen bg-gray-100">
-            <div className="p-8 bg-white shadow-xl rounded-lg w-96">
-                <h2 className="text-3xl font-bold text-center mb-4 text-blue-600">Login</h2>
+        <>
+            { alertBox }
+            <div className="flex justify-center items-center min-h-screen bg-gray-100">
+                <div className="p-8 bg-white shadow-xl rounded-lg w-96">
+                    <h2 className="text-3xl font-bold text-center mb-4 text-blue-600">Login</h2>
 
-                {/* Username Input */}
-                <input
-                    type="text"
-                    placeholder="Username"
-                    value={username}
-                    onChange={(e) => setUsername(e.target.value)}
-                    className="block border p-2 w-full rounded-md mb-2 focus:ring-2 focus:ring-blue-400 text-black"
-                />
+                    {/* Username Input */}
+                    <input
+                        type="text"
+                        placeholder="Username"
+                        value={username}
+                        onChange={(e) => setUsername(e.target.value)}
+                        className="block border p-2 w-full rounded-md mb-2 focus:ring-2 focus:ring-blue-400 text-black"
+                    />
 
-                {/* Password Input */}
-                <input
-                    type="password"
-                    placeholder="Password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    className="block border p-2 w-full rounded-md mb-4 focus:ring-2 focus:ring-blue-400 text-black"
-                />
+                    {/* Password Input */}
+                    <input
+                        type="password"
+                        placeholder="Password"
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                        className="block border p-2 w-full rounded-md mb-4 focus:ring-2 focus:ring-blue-400 text-black"
+                    />
 
-                {/* Error Message */}
-                {error && <p className="text-red-500 text-sm text-center mb-2">{error}</p>}
+                    {/* Error Message */}
+                    {error && <p className="text-red-500 text-sm text-center mb-2">{error}</p>}
 
-                {/* Login Button */}
-                <button 
-                    onClick={handleLogin}
-                    className="bg-blue-500 text-white px-4 py-2 rounded-md w-full hover:bg-blue-600 transition-all"
-                >
-                    Login
-                </button>
+                    {/* Login Button */}
+                    <button 
+                        onClick={handleLogin}
+                        className="bg-blue-500 text-white px-4 py-2 rounded-md w-full hover:bg-blue-600 transition-all"
+                    >
+                        Login
+                    </button>
+                </div>
             </div>
-        </div>
+        </>
     );
 }

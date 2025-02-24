@@ -5,6 +5,8 @@ import Home from "./Home";
 import Service from "./Service";
 import Login from "./Login"; // Import the Login component
 import { AuthProvider } from "./AuthContext";
+import Profile from "./Profile";
+import ProtectedRoute from "./ProtectedRoute";
 
 export default function App() {
     const [darkMode, setDarkMode] = useState(false);
@@ -17,6 +19,7 @@ export default function App() {
                 {/* Show Navbar on all pages except Login */}
                 <Routes>
                     <Route path="/login" element={<Login />} />
+                    
                     <Route path="*" element={
                         <>
                             <Navbar darkMode={darkMode} setDarkMode={setDarkMode} />
@@ -24,6 +27,13 @@ export default function App() {
                                 <Routes>
                                     <Route path="/" element={<Home darkMode={darkMode} />} />
                                     <Route path="/service" element={<Service darkMode={darkMode} />} />
+
+                                    {/* Protected Profile Route */}
+                                    <Route 
+                                        path="/profile" 
+                                        element={<ProtectedRoute><Profile darkMode={darkMode} /></ProtectedRoute>} 
+                                    />
+
                                     <Route path="*" element={<h1 className="text-center text-2xl mt-10">404 - Page Not Found</h1>} />
                                 </Routes>
                             </div>

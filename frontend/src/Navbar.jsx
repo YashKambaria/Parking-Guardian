@@ -19,7 +19,10 @@ export default function Navbar({ darkMode, setDarkMode }) {
     <nav className={`p-4 shadow-lg w-full fixed top-0 left-0 transition-colors z-50 duration-300 ${darkMode ? "bg-gray-900 text-white" : "bg-white text-gray-900"}`}>
       <div className="container mx-auto flex justify-between items-center">
         {/* Logo */}
-        <a href="#" className="text-xl font-bold">Parking Guardian</a>
+        <Link to={"/"} className="text-xl font-bold">
+            <i className="fa-solid fa-dna mr-2 text-2xl"></i>
+            Parking Guardian
+        </Link>
         
         {/* Search Bar */}
         <div className="relative w-1/3">
@@ -44,7 +47,6 @@ export default function Navbar({ darkMode, setDarkMode }) {
                 </>
             ) : (
                 <>
-                    <Link to={`/`} className="hover:text-blue-400 cursor-pointer">Home</Link> 
                     <Link to={`/login`} className="hover:text-blue-400 cursor-pointer">Login</Link>
                     <Link to={`/signup`} className="hover:text-blue-400 cursor-pointer">Sign Up</Link>
                 </>
@@ -53,10 +55,19 @@ export default function Navbar({ darkMode, setDarkMode }) {
           {/* Theme Toggle Button */}
           <button
             onClick={() => setDarkMode(!darkMode)}
-            className="p-2 rounded-lg border border-gray-500 hover:border-blue-500 cursor-pointer"
+            className="p-2 rounded-lg border border-gray-500 hover:border-blue-500 cursor-pointer w-10 h-10"
           >
             {darkMode ? "🌞" : "🌙"}
           </button>
+
+            { isLoggedIn ? (
+                <Link to={`/profile`} className="p-2 rounded-lg border border-gray-500 flex items-center justify-center hover:border-blue-500 cursor-pointer w-10 h-10">
+                    <i class="fa-solid fa-user"></i>
+                </Link>
+            ) : (
+                <></>
+            ) }
+
         </div>
       </div>
     </nav>
