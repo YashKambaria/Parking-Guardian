@@ -58,9 +58,14 @@ public class ServicesController {
 				if (vehicleOwner.getComplaintsCount() >= 5) {
 					emailService.sendAlert(vehicleOwner, request);
 				}
-				
-				String s = phoneService.sendSMS(request, fromUsername);
-				return new ResponseEntity<>(s, HttpStatus.OK);
+				try{
+				phoneService.sendSMS(request, fromUsername);
+				return new ResponseEntity<>("Message Sent Successfully", HttpStatus.OK);
+				}
+				catch (Exception e){
+				log.error("Error while SMS--------------------------------->",e);
+				return new ResponseEntity<>("Error Occured while Sending SMS to user",HttpStatus.BAD_REQUEST);
+			}
 			} else {
 				return ResponseEntity.badRequest().body("User not found!");
 			}
@@ -85,8 +90,14 @@ public class ServicesController {
 				if (vehicleOwner.getComplaintsCount() >= 5) {
 					emailService.sendAlert(vehicleOwner, plateNo);
 				}
-				phoneService.makeCall(FromUsername,request);
-				return new ResponseEntity<>("Calling user successfully ", HttpStatus.FOUND);
+				try {
+					phoneService.makeCall(FromUsername, request);
+					return new ResponseEntity<>("Calling user successfully ", HttpStatus.OK);
+				}
+				catch (Exception e){
+					log.error("Error while calling--------------------------------->",e);
+					return new ResponseEntity<>("Error Occured while calling user",HttpStatus.BAD_REQUEST);
+				}
 			} else {
 				return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
 			}

@@ -35,4 +35,6 @@ public class UserEntity {
 	private Instant otpExpiryTime;
 	private int complaintsCount = 0;
 	private List<Complains> history=new ArrayList<>();
+	private boolean isEmailVerified;
+	private boolean isPhoneVerified;
 }

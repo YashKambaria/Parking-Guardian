@@ -37,32 +37,36 @@ public class PhoneService {
 	public void setup(){
 		Twilio.init(SID_ACCOUNT,AUTH_ID);
 	}
-	public String sendSMS(ParkingIssueRequest request, String fromUsername) {
-		Optional<UserEntity> user1 = userRepository.findByPlateNo(request.getPlateNo());
-		String phoneNo = user1.get().getPhoneNo();
-		String googleMapsLink = "https://www.google.com/maps?q=" + request.getLatitude() + "," + request.getLongitude();
-		
-		
-		String carModel=userRepository.findByPlateNo(request.getPlateNo())
-				.map(user -> user.getVehicles().stream()
-						.filter(vehicle -> vehicle.getPlateNo().equals(request.getPlateNo()))
-						.map(vehicle -> vehicle.getCarModel())
-						.findFirst()
-						.orElse(null)) // Handle case where no vehicle is found
-				.orElse(null);  // Handle case where no user is found
-		
-		List<Complains> history = user1.get().getHistory();
-		Instant instant=Instant.now();
-		history.add(new Complains(fromUsername, request.getPlateNo(),carModel,instant,"SMS",googleMapsLink));
-		userRepository.save(user1.get());
-		String message = "Your " + carModel + "(Plate: " + request.getPlateNo() + ") is blocking a spot. Please move it! Location: " + googleMapsLink;
-		
-		Message.creator(
-				new PhoneNumber(phoneNo),
-				new PhoneNumber(FROM_NUMBER),
-				message).create();
-		
-		return "Message Sent successfully";
+	public void sendSMS(ParkingIssueRequest request, String fromUsername) {
+		try {
+			Optional<UserEntity> user1 = userRepository.findByPlateNo(request.getPlateNo());
+			String phoneNo = user1.get().getPhoneNo();
+			String googleMapsLink = "https://www.google.com/maps?q=" + request.getLatitude() + "," + request.getLongitude();
+			
+			
+			String carModel = userRepository.findByPlateNo(request.getPlateNo())
+					.map(user -> user.getVehicles().stream()
+							.filter(vehicle -> vehicle.getPlateNo().equals(request.getPlateNo()))
+							.map(vehicle -> vehicle.getCarModel())
+							.findFirst()
+							.orElse(null)) // Handle case where no vehicle is found
+					.orElse(null);  // Handle case where no user is found
+			
+			List<Complains> history = user1.get().getHistory();
+			Instant instant = Instant.now();
+			history.add(new Complains(fromUsername, request.getPlateNo(), carModel, instant, "SMS", googleMapsLink));
+			userRepository.save(user1.get());
+			String message = "Your " + carModel + "(Plate: " + request.getPlateNo() + ") is blocking a spot. Please move it! Location: " + googleMapsLink;
+			
+			Message.creator(
+					new PhoneNumber(phoneNo),
+					new PhoneNumber(FROM_NUMBER),
+					message).create();
+		}
+		catch (Exception e){
+			log.error("Error while sending SMS ----------->",e);
+			throw e;
+		}
 		
 	}
 	public void makeCall(String FromUsername, ParkingIssueRequest request) {
@@ -88,6 +92,7 @@ public class PhoneService {
 		}
 		catch (Exception e){
 			log.error("CALLING EXCEPTION ______________------------",e);
+			throw e;
 		}
 	}
 	
@@ -109,6 +114,7 @@ public class PhoneService {
 		}
 		catch (Exception e){
 			log.error("Error while sending otp ",e);
+			throw e;
 		}
 	}
 }

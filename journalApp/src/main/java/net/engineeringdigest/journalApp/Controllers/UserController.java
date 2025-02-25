@@ -104,6 +104,7 @@ public class UserController {
 			if(user.getOTP().equals(otpValidate.getOtp())){
 				if (now.isBefore(user.getOtpExpiryTime())) {
 					user.setOTP(null);
+					user.setEmailVerified(true);
 					userRepository.save(user);
 					return new ResponseEntity<>("Email verified successfully ", HttpStatus.ACCEPTED);
 				}
@@ -131,6 +132,7 @@ public class UserController {
 			if(user.getOTP().equals(otpValidate.getOtp())){
 				if (now.isBefore(user.getOtpExpiryTime())) {
 					user.setOTP(null);
+					user.setPhoneVerified(true);
 					userRepository.save(user);
 					return new ResponseEntity<>("Phone Number verified succesfully ", HttpStatus.ACCEPTED);
 				}
