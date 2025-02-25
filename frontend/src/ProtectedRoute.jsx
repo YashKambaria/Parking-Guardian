@@ -5,7 +5,7 @@ import { useContext } from "react";
 export default function ProtectedRoute({ children }) {
     const { isLoggedIn, setAccessReason } = useContext(AuthContext);
 
-    if (!isLoggedIn) {
+    if (!isLoggedIn && localStorage.getItem("isLoggedIn") !== "true") {
         setAccessReason("!login"); // Set illegal access reason
         return <Navigate to="/login" replace />;
     }

@@ -60,17 +60,23 @@ export default function Service({ darkMode }) {
 
         try {
           const url =
-            type === "sms" ? "http://localhost:8080/user/sendSMS" : "http://localhost:8080/user/UrgentCall";
+            type === "sms" ? "http://localhost:8080/userServices/sendSMS" : "http://localhost:8080/userServices/UrgentCall";
 
-          await axios.post(url, requestBody, {
+          const data=await axios.post(url, requestBody, {
             headers: {
               Authorization: `Bearer ${token}`,
               "Content-Type": "application/json",
             },
           });
-
+          console.log(JSON.stringify(data));
+          if(data.status==200){
           // Set alert message
           setAlertMessage(type === "sms" ? "📩 SMS Sent Successfully!" : "📞 Call Triggered Successfully!");
+          }
+          else{
+            const result = await data.text();
+            alert(`Error: ${result}`);
+          }
 
           // Auto-dismiss alert after 5 seconds
           setTimeout(() => {

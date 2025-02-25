@@ -53,6 +53,7 @@ export default function Login() {
 
             if (response.status == 200) {
                 setIsLoggedIn(true);
+                localStorage.setItem("isLoggedIn", "true"); 
                 localStorage.setItem("token", token);
                 alert("Login successful")
                 navigate("/"); // Redirect to home page

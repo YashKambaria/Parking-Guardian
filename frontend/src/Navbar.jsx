@@ -9,7 +9,9 @@ export default function Navbar({ darkMode, setDarkMode }) {
     console.log()
 
     const handleLogout = () => {
-      localStorage.removeItem("token"); // Remove token from local storage
+      localStorage.removeItem("token");
+      localStorage.removeItem("isLoggedIn");
+       // Remove token from local storage
     //   setLoggedIn(false); // Update state
     //   navigate("/"); // Redirect to login page
         setIsLoggedIn(false);
