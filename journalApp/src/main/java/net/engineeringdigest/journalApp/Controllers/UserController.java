@@ -169,7 +169,7 @@ public class UserController {
 		}
 	}
 	
-	@PostMapping("/updateDetails")
+	@PutMapping("/updateDetails")
 	public ResponseEntity<?> updateUserDetails(@RequestBody UserEntity UpdateUser) {
 		try {
 			Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
