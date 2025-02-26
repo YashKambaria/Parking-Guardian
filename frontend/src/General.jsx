@@ -40,7 +40,7 @@ export default function General({ darkMode }) {
         });
         setEmailVerified(data.emailVerified);
         setPhoneVerified(data.phoneVerified);
-        setVehicles(data.vehicles); // Set vehicle list
+        setVehicles(data.vehicles || []);
       } catch (error) {
         console.error("Error fetching user data:", error);
       }

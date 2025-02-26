@@ -9,23 +9,25 @@ export default function Signup() {
 
     const [username, setUsername] = useState("");
     const [email, setEmail] = useState("");
-    const [phoneNumber, setPhoneNumber] = useState("");
+    const [phoneNo, setPhoneNumber] = useState("");
     const [carModel, setCarModel] = useState("");
-    const [carPlate, setCarPlate] = useState("");
+    const [plateNo, setPlateNo] = useState("");
+    const [vehicles, setVehicles] = useState([]);
     const [password, setPassword] = useState("");
     const [confirmPassword, setConfirmPassword] = useState("");
     const [error, setError] = useState("");
+
 
     const handleSignup = async () => {
         setError("");
 
         // Regex patterns
         const emailRegex = /^\S+@\S+\.\S+$/;
-        const phoneRegex = /^[6-9]\d{9}$/;
+        const phoneRegex = /^(?:\+?\d{1,3}[-.\s]?)?[6-9]\d{9}$/;
         const carModelRegex = /^[a-zA-Z0-9 ]+$/;
-        const carPlateRegex = /^[A-Z]{2}[0-9]{1,2}[A-Z]{1,3}[0-9]{4}$/;
+        const carPlateRegex = /^[A-Z]{2}\s\d{1,2}[A-Z]{1,3}\d{4}$/;
 
-        if (!username || !email || !phoneNumber || !carModel || !carPlate || !password || !confirmPassword) {
+        if (!username || !email || !phoneNo || !carModel || !plateNo || !password || !confirmPassword) {
             setError("All fields are required!");
             return;
         }
@@ -35,7 +37,7 @@ export default function Signup() {
             return;
         }
 
-        if (!phoneRegex.test(phoneNumber)) {
+        if (!phoneRegex.test(phoneNo)) {
             setError("Invalid phone number!");
             return;
         }
@@ -45,7 +47,7 @@ export default function Signup() {
             return;
         }
 
-        if (!carPlateRegex.test(carPlate.toUpperCase())) {
+        if (!carPlateRegex.test(plateNo.toUpperCase())) {
             setError("Invalid car number plate format!");
             return;
         }
@@ -59,11 +61,12 @@ export default function Signup() {
             setError("Passwords do not match!");
             return;
         }
+        const newVehicles = [{ carModel: carModel, plateNo: plateNo }];
 
         try {
             const response = await axios.post(
-                "http://localhost:8080/public/signup",
-                { username, email, phoneNumber, carModel, carPlate, password },
+                "http://localhost:8080/public/sign-up",
+                { username, email, phoneNo, vehicles: newVehicles, password },
                 { headers: { "Content-Type": "application/json" }, responseType: "text" }
             );
 
@@ -88,9 +91,9 @@ export default function Signup() {
                 {[
                     { icon: "fa-user", type: "text", placeholder: "Username", state: username, setState: setUsername },
                     { icon: "fa-envelope", type: "email", placeholder: "Email ID", state: email, setState: setEmail },
-                    { icon: "fa-phone", type: "text", placeholder: "Phone Number", state: phoneNumber, setState: setPhoneNumber },
+                    { icon: "fa-phone", type: "text", placeholder: "Phone Number", state: phoneNo, setState: setPhoneNumber },
                     { icon: "fa-car", type: "text", placeholder: "Car Model", state: carModel, setState: setCarModel },
-                    { icon: "fa-id-card", type: "text", placeholder: "Car Number Plate", state: carPlate, setState: setCarPlate },
+                    { icon: "fa-id-card", type: "text", placeholder: "Car Number Plate", state: plateNo, setState: setPlateNo },
                     { icon: "fa-lock", type: "password", placeholder: "Password", state: password, setState: setPassword },
                     { icon: "fa-lock", type: "password", placeholder: "Confirm Password", state: confirmPassword, setState: setConfirmPassword }
                 ].map(({ icon, type, placeholder, state, setState }, index) => (
