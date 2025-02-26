@@ -80,7 +80,12 @@ export default function General({ darkMode }) {
   
       const updatedData = await response.json();
 
-  
+      // const emailChanged = !(userInfo.email == updatedData.email);
+
+      // if (emailChanged) {
+      //   setEmailVerified(false);
+      // }
+
       // Update state with new user info
       setUserInfo((prevUserInfo) => ({
         ...prevUserInfo,
@@ -88,6 +93,7 @@ export default function General({ darkMode }) {
         email: updatedData.email || prevUserInfo.email,
         phone: updatedData.phoneNo || prevUserInfo.phone,
       }));
+    
   
       // Compare with the original username stored in the ref
       if (updatedData.username && updatedData.username !== originalUsernameRef.current) {

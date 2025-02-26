@@ -42,7 +42,7 @@ export default function History({ darkMode, historyData }) {
           >
             <h3 className="text-xl font-semibold">{entry.carModel}</h3>
             <p className="text-md">
-              <span className="font-semibold">Complaint by: </span>{entry.person}
+              <span className="font-semibold">Complaint by: </span>{entry.from}
             </p>
             <p className="text-md">
               <span className="font-semibold">Plate No: </span>{entry.plateNo}
@@ -51,7 +51,7 @@ export default function History({ darkMode, historyData }) {
               <span className="font-semibold">Reported on: </span>{entry.timestamp}
             </p>
             <p className="text-md">
-              <span className="font-semibold">Type: </span>{entry.complaintType}
+              <span className="font-semibold">Type: </span>{entry.type}
             </p>
             <p className="text-md">
               <span className="font-semibold">Location: </span>
