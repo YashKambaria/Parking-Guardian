@@ -2,6 +2,7 @@ package net.engineeringdigest.journalApp.Controllers;
 
 import lombok.extern.slf4j.Slf4j;
 import net.engineeringdigest.journalApp.Entities.UserEntity;
+import net.engineeringdigest.journalApp.Repositories.UserRepository;
 import net.engineeringdigest.journalApp.Services.UserDetailServiceImpl;
 import net.engineeringdigest.journalApp.Services.UserService;
 import net.engineeringdigest.journalApp.utils.JwtUtil;
@@ -14,6 +15,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Collections;
+import java.util.Map;
 
 
 @Slf4j
@@ -32,6 +34,9 @@ public class publicController {
 	
 	@Autowired
 	private JwtUtil jwtUtil;
+	
+	@Autowired
+	private UserRepository userRepository;
 	
 	@PostMapping("/sign-up")
 	public ResponseEntity<?> signup(@RequestBody UserEntity user){
@@ -58,6 +63,14 @@ public class publicController {
 			log.error("Exception occur while create AuthentcationToken ",e);
 			return new ResponseEntity<>("Incorrect username or password",HttpStatus.BAD_REQUEST);
 		}
+	}
+	@PostMapping("/refresh-token")
+	public ResponseEntity<?> refreshToken(@RequestBody Map<String, String> request) {
+		String username = request.get("username");
+		UserEntity user= userRepository.findByUsername(username);
+		UserDetails userDetails = userDetailsService.loadUserByUsername(user.getUsername());
+		String jwt=jwtUtil.generateToken(userDetails.getUsername());
+		return ResponseEntity.ok(jwt);
 	}
 }
 

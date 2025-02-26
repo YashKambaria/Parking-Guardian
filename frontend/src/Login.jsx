@@ -47,8 +47,6 @@ export default function Login() {
                 }
             );
 
-            console.log("The response: " + JSON.stringify(response));
-            // The response is a plain string (JWT token)
             const token = response.data;
 
             if (response.status == 200) {

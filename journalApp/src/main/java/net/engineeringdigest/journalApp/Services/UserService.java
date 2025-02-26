@@ -1,21 +1,13 @@
 package net.engineeringdigest.journalApp.Services;
 
 
-import com.twilio.rest.api.v2010.account.Call;
-import com.twilio.rest.api.v2010.account.Message;
 import lombok.extern.slf4j.Slf4j;
-import net.engineeringdigest.journalApp.Entities.Complains;
-import net.engineeringdigest.journalApp.Entities.ParkingIssueRequest;
 import net.engineeringdigest.journalApp.Entities.UserEntity;
 import net.engineeringdigest.journalApp.Repositories.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import com.twilio.Twilio;
-import com.twilio.type.PhoneNumber;
-import javax.annotation.PostConstruct;
-import java.time.Instant;
+
 import java.util.*;
 
 
@@ -78,6 +70,30 @@ public class UserService {
 	}
 	
 	
-	
-	
+	public void updateUser(UserEntity updatedUser, UserEntity existingUser) {
+		try{
+				if(updatedUser.getUsername()!=null && !updatedUser.getUsername().equals(existingUser.getUsername())){
+					existingUser.setUsername(updatedUser.getUsername());
+				}
+				if(updatedUser.getPhoneNo()!=null && !updatedUser.getPhoneNo().equals(existingUser.getPhoneNo())){
+					existingUser.setPhoneNo(updatedUser.getPhoneNo());
+					existingUser.setPhoneVerified(false);
+				}
+				if(updatedUser.getEmail()!=null && !updatedUser.getEmail().equals(existingUser.getEmail())){
+					existingUser.setEmail(updatedUser.getEmail());
+					existingUser.setEmailVerified(false);
+				}
+			if(updatedUser.getPassword()!=null && updatedUser.getPassword().equals(existingUser.getPassword())){
+				existingUser.setPassword(updatedUser.getPassword());
+				saveUser(existingUser); //as there will be new password and it should be encrypted
+			}
+			else{
+				saveEntry(existingUser); //as the user has not updated the password
+			}
+		}
+		catch (Exception e){
+			log.error("error while updating user ---------------------->",e);
+			throw e;
+		}
+	}
 }

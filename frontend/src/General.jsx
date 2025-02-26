@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { useRef } from "react";
 
 export default function General({ darkMode }) {
   const [vehicles, setVehicles] = useState([]);
@@ -12,6 +13,7 @@ export default function General({ darkMode }) {
   const [otp, setOtp] = useState("");
   const [verifyingField, setVerifyingField] = useState(null);
 
+  const originalUsernameRef = useRef(userInfo.username);
   useEffect(() => {
     const fetchUserData = async () => {
       const token = localStorage.getItem("token"); // Get JWT token
@@ -54,9 +56,71 @@ export default function General({ darkMode }) {
     setShowModal(false);
   };
 
-  const handleUpdateUserInfo = () => {
-    setIsEditing(false);
+  const handleUpdateUserInfo = async () => {
+    const token = localStorage.getItem("token"); // Get JWT token
+  
+    try {
+      const response = await fetch("http://localhost:8080/user/updateDetails", {
+        method: "PUT",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          username: userInfo.username,
+          email: userInfo.email,
+          phoneNo: userInfo.phone, // Ensure key matches backend
+        }),
+      });
+  
+      if (!response.ok) {
+        throw new Error("Failed to update user information");
+      }
+  
+      const updatedData = await response.json();
+
+  
+      // Update state with new user info
+      setUserInfo((prevUserInfo) => ({
+        ...prevUserInfo,
+        username: updatedData.username || prevUserInfo.username,
+        email: updatedData.email || prevUserInfo.email,
+        phone: updatedData.phoneNo || prevUserInfo.phone,
+      }));
+  
+      // Compare with the original username stored in the ref
+      if (updatedData.username && updatedData.username !== originalUsernameRef.current) {
+        console.log("Username changed, fetching new token...");
+  
+        const newTokenResponse = await fetch("http://localhost:8080/public/refresh-token", {
+          method: "POST", // Ensure method matches your backend mapping
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ username: updatedData.username }),
+        });
+  
+        if (!newTokenResponse.ok) {
+          throw new Error("Failed to refresh token after username update");
+        }
+  
+        // Use .text() instead of .json() to parse the plain text token
+        const newToken = await newTokenResponse.text();
+        console.log("new token", newToken);
+        localStorage.setItem("token", newToken);
+        // Update the ref so subsequent comparisons work correctly
+        originalUsernameRef.current = updatedData.username;
+      }
+  
+      setIsEditing(false);
+      alert("User information updated successfully!");
+    } catch (error) {
+      console.error("Error updating user information:", error);
+      alert("Failed to update user details. Please try again.");
+    }
   };
+  
+  
 
   const handleVerify = async (field) => {
     const token = localStorage.getItem("token"); // Get JWT token
@@ -326,10 +390,10 @@ export default function General({ darkMode }) {
 
       {/* Add Vehicle Modal */}
       {showModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
+        <div className={`fixed inset-0 bg-opacity-50 flex justify-center items-center ${darkMode ? "bg-gray-900" : "bg-white"}`}>
           <div
             className={`p-6 rounded-lg shadow-lg w-96 ${
-              darkMode ? "bg-gray-800 text-white" : "bg-white"
+              darkMode ? "bg-gray-800 text-white" : "bg-white text-black"
             }`}
           >
             <h2 className="text-xl font-semibold mb-4">Add Vehicle</h2>
@@ -338,8 +402,10 @@ export default function General({ darkMode }) {
               type="text"
               placeholder="Plate Number"
               value={newPlate}
-              onChange={(e) => setNewPlate(e.target.value.toUpperCase())}
-              className="w-full p-2 mb-3 border rounded-md"
+              onChange={(e) => {
+                setNewPlate(e.target.value.toUpperCase())
+              }}
+              className={`w-full p-2 mb-3 border rounded-md ${darkMode ? "text-white" : "text-black"}`}
             />
 
             <input
@@ -347,19 +413,19 @@ export default function General({ darkMode }) {
               placeholder="Car Name"
               value={newCarName}
               onChange={(e) => setNewCarName(e.target.value)}
-              className="w-full p-2 mb-3 border rounded-md"
+              className={`w-full p-2 mb-3 border rounded-md ${darkMode ? "text-white" : "text-black"}`}
             />
 
             <div className="flex justify-between">
               <button
                 onClick={handleAddVehicle}
-                className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700"
+                className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 cursor-pointer"
               >
                 Add
               </button>
               <button
                 onClick={() => setShowModal(false)}
-                className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700"
+                className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 cursor-pointer"
               >
                 Cancel
               </button>

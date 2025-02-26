@@ -64,7 +64,7 @@ export default function Navbar({ darkMode, setDarkMode }) {
 
             { isLoggedIn ? (
                 <Link to={`/profile`} className="p-2 rounded-lg border border-gray-500 flex items-center justify-center hover:border-blue-500 cursor-pointer w-10 h-10">
-                    <i class="fa-solid fa-user"></i>
+                    <i className="fa-solid fa-user"></i>
                 </Link>
             ) : (
                 <></>
