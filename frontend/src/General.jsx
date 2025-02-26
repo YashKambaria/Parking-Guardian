@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useRef } from "react";
+import { Navigate } from "react-router-dom";
 
 export default function General({ darkMode }) {
   const [vehicles, setVehicles] = useState([]);
@@ -118,6 +119,8 @@ export default function General({ darkMode }) {
       console.error("Error updating user information:", error);
       alert("Failed to update user details. Please try again.");
     }
+    // Navigate(0);
+    window.location.reload()
   };
   
   

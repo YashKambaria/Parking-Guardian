@@ -1,7 +1,7 @@
 import { useContext, useState, useEffect } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
 import { AuthContext } from "./AuthContext";
-import { Navigate, useNavigate } from "react-router-dom";
 
 export default function Login() {
     const { accessReason } = useContext(AuthContext);
@@ -19,14 +19,14 @@ export default function Login() {
                     <span className="font-semibold">You need to login first!</span>
                     <button 
                         className="ml-4 bg-red-800 px-2 py-1 rounded-md hover:bg-red-700 transition"
-                        onClick={() => setAlertMessage("")}
+                        onClick={() => setError("")}
                     >
                         ✖
                     </button>
                 </div>
-            )
+            );
         }
-    })
+    }, [accessReason]);
 
     const handleLogin = async () => {
         setError("");
@@ -43,21 +43,21 @@ export default function Login() {
                 { username, password },
                 {
                     headers: { "Content-Type": "application/json" },
-                    responseType: "text", // Ensure response is treated as plain text
+                    responseType: "text",
                 }
             );
 
+            console.log("The response: " + JSON.stringify(response));
             const token = response.data;
 
             if (response.status == 200) {
                 setIsLoggedIn(true);
                 localStorage.setItem("isLoggedIn", "true"); 
                 localStorage.setItem("token", token);
-                alert("Login successful")
-                navigate("/"); // Redirect to home page
-            }
-            else {
-                alert("Login failed")
+                alert("Login successful");
+                navigate("/");
+            } else {
+                alert("Login failed");
             }
         } catch (err) {
             setError(err.response?.data || "Login failed. Try again.");
@@ -66,8 +66,8 @@ export default function Login() {
 
     return (
         <>
-            { alertBox }
-            <div className="flex justify-center items-center min-h-screen bg-gray-100">
+            {alertBox}
+            <div className="flex justify-center items-center min-h-screen bg-gradient-to-r from-purple-600 to-blue-500">
                 <div className="p-8 bg-white shadow-xl rounded-lg w-96">
                     <h2 className="text-3xl font-bold text-center mb-4 text-blue-600">Login</h2>
 
@@ -95,10 +95,18 @@ export default function Login() {
                     {/* Login Button */}
                     <button 
                         onClick={handleLogin}
-                        className="bg-blue-500 text-white px-4 py-2 rounded-md w-full hover:bg-blue-600 transition-all"
+                        className="bg-blue-500 text-white px-4 py-2 rounded-md w-full hover:bg-blue-600 transition-all cursor-pointer"
                     >
                         Login
                     </button>
+
+                    {/* Signup Link */}
+                    <p className="text-center text-sm mt-3 text-gray-600">
+                        Don't have an account?{" "}
+                        <Link to="/signup" className="text-blue-500 hover:underline">
+                            Sign up
+                        </Link>
+                    </p>
                 </div>
             </div>
         </>

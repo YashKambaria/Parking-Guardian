@@ -7,6 +7,7 @@ import Login from "./Login"; // Import the Login component
 import { AuthProvider } from "./AuthContext";
 import Profile from "./Profile";
 import ProtectedRoute from "./ProtectedRoute";
+import Signup from "./Signup";
 
 export default function App() {
     const [darkMode, setDarkMode] = useState(false);
@@ -19,6 +20,7 @@ export default function App() {
                 {/* Show Navbar on all pages except Login */}
                 <Routes>
                     <Route path="/login" element={<Login />} />
+                    <Route path="/signup" element={<Signup />} />
                     
                     <Route path="*" element={
                         <>
@@ -26,7 +28,10 @@ export default function App() {
                             <div>
                                 <Routes>
                                     <Route path="/" element={<Home darkMode={darkMode} />} />
-                                    <Route path="/service" element={<Service darkMode={darkMode} />} />
+                                    <Route
+                                        path="/service"
+                                        element={<ProtectedRoute><Service darkMode={darkMode} /></ProtectedRoute>}
+                                    />
 
                                     {/* Protected Profile Route */}
                                     <Route 

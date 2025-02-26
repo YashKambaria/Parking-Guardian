@@ -48,7 +48,8 @@ export default function Navbar({ darkMode, setDarkMode }) {
                     <button className="hover:text-blue-400 cursor-pointer" onClick={handleLogout}>Logout</button>
                 </>
             ) : (
-                <>
+              <>
+                    <Link to={`/service`} className="hover:text-blue-400 cursor-pointer">Service</Link>
                     <Link to={`/login`} className="hover:text-blue-400 cursor-pointer">Login</Link>
                     <Link to={`/signup`} className="hover:text-blue-400 cursor-pointer">Sign Up</Link>
                 </>
