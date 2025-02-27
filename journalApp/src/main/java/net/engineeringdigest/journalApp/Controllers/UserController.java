@@ -1,8 +1,6 @@
 package net.engineeringdigest.journalApp.Controllers;
 
 
-import com.fasterxml.jackson.annotation.JsonFormat;
-import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.extern.slf4j.Slf4j;
 import net.engineeringdigest.journalApp.Entities.*;
 import net.engineeringdigest.journalApp.Repositories.UserRepository;
@@ -21,6 +19,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.time.Instant;
 import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -188,6 +187,27 @@ public class UserController {
 		} catch (Exception e) {
 			return new ResponseEntity<>("Error while updating User. Please Try Again Later", HttpStatus.BAD_REQUEST);
 		}
+	}
+	@PostMapping("/addVehicles")
+	public ResponseEntity<?> addVehicles(@RequestBody Vehicle vehicle){
+		try {
+			Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+			UserEntity user = userRepository.findByUsername(authentication.getName());
+			if (user != null) {
+				List<Vehicle> vehicles = user.getVehicles();
+				vehicles.add(vehicle);
+				userService.saveEntry(user);
+				return new ResponseEntity<>(HttpStatus.OK);
+			} else {
+				log.error("error while adding vehicle");
+				return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+			}
+		}
+		catch (Exception e){
+			log.error("error while adding vehicle",e);
+			return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+		}
+		
 	}
 	
 	@DeleteMapping("/deleteUser")
