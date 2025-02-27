@@ -184,3 +184,38 @@
       transform: translateY(-400%);
     }
   }
+/* Orange Circle Toggle */
+.circle {
+    position: relative;
+    border-radius: 50%;
+    background: #FF8C00; /* Orange color */
+    width: 2rem;  /* 48px */
+    height: 2rem; /* 48px */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform 0.3s;
+  }
+  
+  .crescent {
+    position: absolute;
+    border-radius: 50%;
+    width: 1.5rem;  /* 40px */
+    height: 1.5rem; /* 40px */
+    background: white;
+    transform: scale(0) ; /* Hidden by default */
+    transform-origin: top right ;
+    transition: transform 0.6s cubic-bezier(0.645, 0.045, 0.355, 1);
+  }
+  
+  /* When the checkbox is checked (dark mode active), we can reveal the crescent */
+  #switch:checked + .app .circle .crescent,
+  #switch:checked ~ .circle .crescent {
+    transform: scale(1.1) translate(5px,-5px);
+    background: #101828;
+  }
+  #switch:checked ~ .circle{
+    background: white;
+  }
+  
+  

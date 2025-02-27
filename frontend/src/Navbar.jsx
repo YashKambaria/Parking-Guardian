@@ -88,16 +88,10 @@ export default function Navbar({ darkMode, setDarkMode }) {
         <div className="space-x-6 flex items-center">
           {isLoggedIn ? (
             <>
-              <Link
-                to={`/`}
-                className="hover:text-blue-400 cursor-pointer"
-              >
+              <Link to={`/`} className="hover:text-blue-400 cursor-pointer">
                 Home
               </Link>
-              <Link
-                to={`/service`}
-                className="hover:text-blue-400 cursor-pointer"
-              >
+              <Link to={`/service`} className="hover:text-blue-400 cursor-pointer">
                 Service
               </Link>
               <button
@@ -109,42 +103,39 @@ export default function Navbar({ darkMode, setDarkMode }) {
             </>
           ) : (
             <>
-              <Link
-                to={`/service`}
-                className="hover:text-blue-400 cursor-pointer"
-              >
+              <Link to={`/service`} className="hover:text-blue-400 cursor-pointer">
                 Service
               </Link>
-              <Link
-                to={`/login`}
-                className="hover:text-blue-400 cursor-pointer"
-              >
+              <Link to={`/login`} className="hover:text-blue-400 cursor-pointer">
                 Login
               </Link>
-              <Link
-                to={`/signup`}
-                className="hover:text-blue-400 cursor-pointer"
-              >
+              <Link to={`/signup`} className="hover:text-blue-400 cursor-pointer">
                 Sign Up
               </Link>
             </>
           )}
 
-          {/* Theme Toggle Button */}
-          <button
-            onClick={() => {
-              if (localStorage.getItem("darkMode") === "true") {
-                localStorage.setItem("darkMode", "false");
-                setDarkMode(false);
-              } else {
-                localStorage.setItem("darkMode", "true");
-                setDarkMode(true);
-              }
-            }}
-            className="p-2 rounded-lg border border-gray-500 hover:border-blue-500 cursor-pointer w-10 h-10"
-          >
-            {darkMode ? "🌞" : "🌙"}
-          </button>
+          {/* Orange Circle Toggle */}
+          <label htmlFor="switch" className="cursor-pointer flex items-center">
+            <input
+              id="switch"
+              type="checkbox"
+              className="hidden"
+              checked={darkMode}
+              onChange={() => {
+                if (darkMode) {
+                  localStorage.setItem("darkMode", "false");
+                  setDarkMode(false);
+                } else {
+                  localStorage.setItem("darkMode", "true");
+                  setDarkMode(true);
+                }
+              }}
+            />
+            <div className="circle relative w-12 h-12 rounded-full bg-orange-500 flex items-center justify-center transition-transform duration-300">
+              <div className="crescent absolute w-10 h-10 bg-white rounded-full transform transition-transform duration-300"></div>
+            </div>
+          </label>
 
           {isLoggedIn && (
             <Link
