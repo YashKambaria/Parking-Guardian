@@ -164,7 +164,7 @@ public class UserController {
 			return new ResponseEntity<>(user, HttpStatus.OK);
 		}
 		catch (Exception e){
-			return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+			return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
 		}
 	}
 	
@@ -182,32 +182,49 @@ public class UserController {
 			userService.updateUser(UpdateUser, existingUser);
 			
 			return new ResponseEntity<>(existingUser, HttpStatus.OK);
-		} catch (DataAccessException e) {
-			return new ResponseEntity<>("Database Error: Unable to update user", HttpStatus.INTERNAL_SERVER_ERROR);
-		} catch (Exception e) {
-			return new ResponseEntity<>("Error while updating User. Please Try Again Later", HttpStatus.BAD_REQUEST);
+		}catch (Exception e) {
+			return new ResponseEntity<>("Error while updating User. Please Try Again Later", HttpStatus.UNAUTHORIZED);
 		}
 	}
+	@PostMapping("/deleteVehicle")
+	public ResponseEntity<?> deleteVehicle(@RequestBody Vehicle vehicle){
+		try {
+			Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+			UserEntity user = userRepository.findByUsername(authentication.getName());
+			if (user != null) {
+				List<Vehicle> vehicles = user.getVehicles();
+				vehicles.remove(vehicle);
+				userService.saveEntry(user);
+				return new ResponseEntity<>(HttpStatus.OK);
+			}
+			else {
+				return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+			}
+		}
+		catch (Exception e){
+			log.error("error while deleting vehicle ----------->",e);
+			return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+		}
+	}
+	
+	
 	@PostMapping("/addVehicles")
 	public ResponseEntity<?> addVehicles(@RequestBody Vehicle vehicle){
 		try {
 			Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 			UserEntity user = userRepository.findByUsername(authentication.getName());
 			if (user != null) {
-				List<Vehicle> vehicles = user.getVehicles();
-				vehicles.add(vehicle);
-				userService.saveEntry(user);
+				userService.addVehicle(user,vehicle);
 				return new ResponseEntity<>(HttpStatus.OK);
 			} else {
 				log.error("error while adding vehicle");
 				return new ResponseEntity<>(HttpStatus.NOT_FOUND);
 			}
 		}
-		catch (Exception e){
-			log.error("error while adding vehicle",e);
+		catch (Exception e) {
+			log.error("error while adding vehicle", e);
 			return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
 		}
-		
 	}
 	
 	@DeleteMapping("/deleteUser")

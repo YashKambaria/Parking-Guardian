@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useRef } from "react";
-import { Navigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 export default function General({ darkMode }) {
   const [vehicles, setVehicles] = useState([]);
@@ -12,10 +12,55 @@ export default function General({ darkMode }) {
   const [userInfo, setUserInfo] = useState({});
   const [otp, setOtp] = useState("");
   const [verifyingField, setVerifyingField] = useState(null);
+  const [deleteModal, setDeleteModal] = useState(false);
+  const [selectedVehicle, setSelectedVehicle] = useState(null);
+  const navigate = useNavigate();
 
   const originalUsernameRef = useRef(userInfo.username);
 
-  // Fetch user data from backend
+  const handleDeleteClick = (vehicle) => {
+    setSelectedVehicle(vehicle);
+    setDeleteModal(true);
+  };
+
+  const confirmDeleteVehicle = async() => {
+    try{
+    const token=localStorage.getItem("token");
+    if (selectedVehicle) {
+      const response = await fetch("http://localhost:8080/user/deleteVehicle", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(selectedVehicle),
+      });
+      if(response.ok){
+    alert(" Vehicle deleted successfully ");
+      setVehicles((prevVehicles) =>
+        prevVehicles.filter(
+          (vehicle) => vehicle.plateNo !== selectedVehicle.plateNo
+        )
+      );
+    }
+    else if(response.status==401){
+      alert(" Session Expired please login again ");
+      navigate("/login");
+    }
+    else if(response.status==404){
+      alert("Sorry, User is not associated with this vehicle please contact with admin ");
+    }
+    }
+    setDeleteModal(false);
+    setSelectedVehicle(null);
+  }
+  catch(error){
+    alert("An Error occured please try again later");
+    console.log(error);
+  }
+  };
+
+  // Fetch user data from backend with token check
   useEffect(() => {
     const fetchUserData = async () => {
       const token = localStorage.getItem("token"); // Get JWT token
@@ -27,8 +72,13 @@ export default function General({ darkMode }) {
             "Content-Type": "application/json",
           },
         });
-        if (!response.ok) {
-          throw new Error("Failed to fetch user data");
+
+        if (response.status === 401) {
+          localStorage.setItem("isLoggedIn","false");
+          localStorage.removeItem("token");
+          alert("Session expired. Please log in again.");
+          navigate("/login");
+          return;
         }
         const data = await response.json();
         setUserInfo({
@@ -40,7 +90,11 @@ export default function General({ darkMode }) {
         setPhoneVerified(data.phoneVerified);
         setVehicles(data.vehicles || []);
       } catch (error) {
+        localStorage.setItem("isLoggedIn","false");
+        localStorage.removeItem("token");
         console.error("Error fetching user data:", error);
+        alert("Unable to fetch data. Please log in again.");
+        navigate("/login");
       }
     };
     fetchUserData();
@@ -51,7 +105,7 @@ export default function General({ darkMode }) {
   useEffect(() => {
     const timer = setTimeout(() => {
       setMinLoadingDone(true);
-    }, 4000);
+    }, 2500);
     return () => clearTimeout(timer);
   }, []);
 
@@ -73,8 +127,6 @@ export default function General({ darkMode }) {
       if (!response.ok) {
         throw new Error("Failed to add vehicle");
       }
-      // Optionally, you can process the response if needed:
-      // const data = await response.json();
       setVehicles([...vehicles, newVehicle]);
       setNewPlate("");
       setNewCarName("");
@@ -83,9 +135,6 @@ export default function General({ darkMode }) {
       console.error("Error adding vehicle:", error);
     }
   };
-  
-  
-  
 
   const handleUpdateUserInfo = async () => {
     const token = localStorage.getItem("token");
@@ -134,11 +183,12 @@ export default function General({ darkMode }) {
         originalUsernameRef.current = updatedData.username;
       }
       setIsEditing(false);
+      // alert("User information updated successfully!");
     } catch (error) {
       console.error("Error updating user information:", error);
       alert("Failed to update user details. Please try again.");
     }
-    window.location.reload();
+    window.location.reload(false);
   };
 
   const handleVerify = async (field) => {
@@ -222,8 +272,11 @@ export default function General({ darkMode }) {
   // Show the loader card if data is still loading or minimum 4s hasn't elapsed
   if (!minLoadingDone || !userInfo.username) {
     return (
-      <div className="fixed inset-0 z-50 flex items-center justify-center backdrop-blur-md 
-         {darkMode ? 'bg-gray-900 bg-opacity-60' : 'bg-white'}">
+      <div
+        className={`fixed inset-0 z-50 flex items-center justify-center backdrop-blur-md ${
+          darkMode ? "bg-gray-900 bg-opacity-60" : "bg-white"
+        }`}
+      >
         <div className={`card ${darkMode ? "bg-gray-800 text-white" : "bg-white text-gray-900"}`}>
           <div className="loader">
             <p>loading</p>
@@ -333,22 +386,98 @@ export default function General({ darkMode }) {
                 <span className="font-medium">
                   {vehicle.plateNo} - {vehicle.carModel}
                 </span>
+                <button
+                  onClick={() => handleDeleteClick(vehicle)}
+                  className="px-3 py-1 bg-red-600 text-white rounded-lg hover:bg-red-700 transition cursor-pointer"
+                >
+                  Delete
+                </button>
               </div>
             ))}
           </div>
+
+          {/* Confirmation Modal */}
+          {deleteModal && (
+            <div
+              className={`fixed inset-0 bg-opacity-50 flex justify-center items-center ${
+                darkMode ? "bg-gray-900" : "bg-white"
+              }`}
+            >
+              <div
+                className={`p-6 rounded-lg shadow-lg w-96 ${
+                  darkMode ? "bg-gray-800 text-white" : "bg-white text-black"
+                }`}
+              >
+                <h2 className="text-xl font-semibold mb-4">Confirm Deletion</h2>
+                {selectedVehicle && (
+                  <p className="mb-4">
+                    Are you sure you want to delete{" "}
+                    <b>{selectedVehicle.carModel}</b> with plate number{" "}
+                    <b>{selectedVehicle.plateNo}</b>?
+                  </p>
+                )}
+                <div className="flex justify-between">
+                  <button
+                    onClick={confirmDeleteVehicle}
+                    className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 cursor-pointer"
+                  >
+                    Yes, Delete
+                  </button>
+                  <button
+                    onClick={() => setDeleteModal(false)}
+                    className="px-4 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 cursor-pointer"
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
       </div>
+      {/* // </div> */}
+
       {showModal && (
-        <div className={`fixed inset-0 bg-opacity-50 flex justify-center items-center ${darkMode ? "bg-gray-900" : "bg-white"}`}>
-          <div className={`p-6 rounded-lg shadow-lg w-96 ${darkMode ? "bg-gray-800 text-white" : "bg-white text-black"}`}>
+        <div
+          className={`fixed inset-0 bg-opacity-50 flex justify-center items-center ${
+            darkMode ? "bg-gray-900" : "bg-white"
+          }`}
+        >
+          <div
+            className={`p-6 rounded-lg shadow-lg w-96 ${
+              darkMode ? "bg-gray-800 text-white" : "bg-white text-black"
+            }`}
+          >
             <h2 className="text-xl font-semibold mb-4">Add Vehicle</h2>
-            <input type="text" placeholder="Plate Number" value={newPlate} onChange={(e) => setNewPlate(e.target.value.toUpperCase())} className={`w-full p-2 mb-3 border rounded-md ${darkMode ? "text-white" : "text-black"}`} />
-            <input type="text" placeholder="Car Name" value={newCarName} onChange={(e) => setNewCarName(e.target.value)} className={`w-full p-2 mb-3 border rounded-md ${darkMode ? "text-white" : "text-black"}`} />
+            <input
+              type="text"
+              placeholder="Plate Number"
+              value={newPlate}
+              onChange={(e) => setNewPlate(e.target.value.toUpperCase())}
+              className={`w-full p-2 mb-3 border rounded-md ${
+                darkMode ? "text-white" : "text-black"
+              }`}
+            />
+            <input
+              type="text"
+              placeholder="Car Name"
+              value={newCarName}
+              onChange={(e) => setNewCarName(e.target.value)}
+              className={`w-full p-2 mb-3 border rounded-md ${
+                darkMode ? "text-white" : "text-black"
+              }`}
+            />
             <div className="flex justify-between">
-              <button onClick={handleAddVehicle} className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 cursor-pointer">
+              <button
+                onClick={handleAddVehicle}
+                className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 cursor-pointer"
+              >
                 Add
               </button>
-              <button onClick={() => setShowModal(false)} className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 cursor-pointer">
+              <button
+                onClick={() => setShowModal(false)}
+                className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 cursor-pointer"
+              >
                 Cancel
               </button>
             </div>

@@ -3,6 +3,7 @@ package net.engineeringdigest.journalApp.Services;
 
 import lombok.extern.slf4j.Slf4j;
 import net.engineeringdigest.journalApp.Entities.UserEntity;
+import net.engineeringdigest.journalApp.Entities.Vehicle;
 import net.engineeringdigest.journalApp.Repositories.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -95,5 +96,11 @@ public class UserService {
 			log.error("error while updating user ---------------------->",e);
 			throw e;
 		}
+	}
+	
+	public void addVehicle(UserEntity user, Vehicle vehicle) {
+		List<Vehicle> vehicles = user.getVehicles();
+		vehicles.add(vehicle);
+		saveEntry(user);
 	}
 }
