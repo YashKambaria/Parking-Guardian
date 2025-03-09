@@ -7,7 +7,7 @@ export default function History({ darkMode, historyData }) {
       person: "John Doe", 
       plateNo: "ABC-1234", 
       carModel: "Tesla Model 3", 
-      timestamp: "2025-02-26 10:00 AM", 
+      timestamp: "2025/02/26 10:00 AM", 
       complaintType: "SMS", 
       location: "https://maps.google.com/?q=37.7749,-122.4194" 
     },
@@ -48,7 +48,7 @@ export default function History({ darkMode, historyData }) {
               <span className="font-semibold">Plate No: </span>{entry.plateNo}
             </p>
             <p className="text-md">
-              <span className="font-semibold">Reported on: </span>{entry.timestamp}
+              <span className="font-semibold">Reported on: </span>{new Date(entry.timestamp).toLocaleString()}
             </p>
             <p className="text-md">
               <span className="font-semibold">Type: </span>{entry.type}
