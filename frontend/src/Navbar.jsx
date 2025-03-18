@@ -28,7 +28,7 @@ export default function Navbar({ darkMode, setDarkMode }) {
   // Show loader until dark mode is determined
   if (!isDarkModeLoaded) {
     return (
-      <div className="fixed inset-0 flex items-center justify-center bg-white dark:bg-gray-900">
+      <div className="fixed inset-0 flex z-[200] items-center justify-center bg-white dark:bg-gray-900" style={{position: 'relative'}}>
         <svg
           className="animate-spin h-8 w-8 text-blue-600"
           xmlns="http://www.w3.org/2000/svg"
@@ -67,7 +67,7 @@ export default function Navbar({ darkMode, setDarkMode }) {
         </Link>
 
         {/* Search Bar */}
-        <div className="relative w-1/3">
+        {/* <div className="relative w-1/3">
           <input
             type="text"
             placeholder="Search..."
@@ -82,7 +82,7 @@ export default function Navbar({ darkMode, setDarkMode }) {
           >
             🔍
           </span>
-        </div>
+        </div> */}
 
         {/* Navigation Links */}
         <div className="space-x-6 flex items-center">
