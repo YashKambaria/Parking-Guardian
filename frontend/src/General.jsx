@@ -1,5 +1,6 @@
 import React, { useEffect, useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
+import { motion, AnimatePresence } from "framer-motion";
 
 export default function General({ darkMode }) {
   const [vehicles, setVehicles] = useState([]);
@@ -25,39 +26,39 @@ export default function General({ darkMode }) {
 
   const confirmDeleteVehicle = async() => {
     try{
-    const token=localStorage.getItem("token");
-    if (selectedVehicle) {
-      const response = await fetch("http://localhost:8080/user/deleteVehicle", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify(selectedVehicle),
-      });
-      if(response.ok){
-    alert(" Vehicle deleted successfully ");
-      setVehicles((prevVehicles) =>
-        prevVehicles.filter(
-          (vehicle) => vehicle.plateNo !== selectedVehicle.plateNo
-        )
-      );
+      const token=localStorage.getItem("token");
+      if (selectedVehicle) {
+        const response = await fetch("http://localhost:8080/user/deleteVehicle", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify(selectedVehicle),
+        });
+        if(response.ok){
+          alert(" Vehicle deleted successfully ");
+          setVehicles((prevVehicles) =>
+            prevVehicles.filter(
+              (vehicle) => vehicle.plateNo !== selectedVehicle.plateNo
+            )
+          );
+        }
+        else if(response.status==401){
+          alert(" Session Expired please login again ");
+          navigate("/login");
+        }
+        else if(response.status==404){
+          alert("Sorry, User is not associated with this vehicle please contact with admin ");
+        }
+      }
+      setDeleteModal(false);
+      setSelectedVehicle(null);
     }
-    else if(response.status==401){
-      alert(" Session Expired please login again ");
-      navigate("/login");
+    catch(error){
+      alert("An Error occured please try again later");
+      console.log(error);
     }
-    else if(response.status==404){
-      alert("Sorry, User is not associated with this vehicle please contact with admin ");
-    }
-    }
-    setDeleteModal(false);
-    setSelectedVehicle(null);
-  }
-  catch(error){
-    alert("An Error occured please try again later");
-    console.log(error);
-  }
   };
 
   // Fetch user data from backend with token check
@@ -100,7 +101,7 @@ export default function General({ darkMode }) {
     fetchUserData();
   }, []);
 
-  // Ensure loader is visible for at least 4 seconds
+  // Ensure loader is visible for at least 2.5 seconds
   const [minLoadingDone, setMinLoadingDone] = useState(false);
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -108,8 +109,6 @@ export default function General({ darkMode }) {
     }, 2500);
     return () => clearTimeout(timer);
   }, []);
-
-  // --- (Other functions remain unchanged) ---
 
   const handleAddVehicle = async () => {
     if (!newPlate || !newCarName) return;
@@ -183,7 +182,6 @@ export default function General({ darkMode }) {
         originalUsernameRef.current = updatedData.username;
       }
       setIsEditing(false);
-      // alert("User information updated successfully!");
     } catch (error) {
       console.error("Error updating user information:", error);
       alert("Failed to update user details. Please try again.");
@@ -269,24 +267,39 @@ export default function General({ darkMode }) {
 
   useEffect(() => {}, [emailVerified, phoneVerified]);
 
-  // Show the loader card if data is still loading or minimum 4s hasn't elapsed
+  // Show the loader card if data is still loading or minimum time hasn't elapsed
   if (!minLoadingDone || !userInfo.username) {
     return (
       <div
         className={`fixed inset-0 z-50 flex items-center justify-center backdrop-blur-md ${
-          darkMode ? "bg-gray-900 bg-opacity-60" : "bg-white"
-        }`}
+          darkMode ? "bg-gray-900 bg-opacity-60" : "bg-white bg-opacity-60"
+        } transition-all duration-500`}
       >
-        <div className={`card ${darkMode ? "bg-gray-800 text-white" : "bg-white text-gray-900"}`}>
-          <div className="loader">
-            <p>loading</p>
-            <div className="words">
-              <span className="word">username</span>
-              <span className="word">email</span>
-              <span className="word">phone no</span>
-              <span className="word">vehicles</span>
-              <span className="word">username</span>
+        <div 
+          className={`relative p-8 rounded-2xl shadow-2xl ${
+            darkMode ? "bg-gray-800 text-white" : "bg-white text-gray-900"
+          } overflow-hidden flex flex-col items-center justify-center`}
+          style={{ width: "300px", height: "200px" }}
+        >
+          {/* New Text Animation Loader */}
+          <div className="card" style={{ 
+            backgroundColor: darkMode ? 'rgb(31, 41, 55)' : 'rgb(243, 244, 246)',
+            boxShadow: darkMode ? '0 0 15px rgba(255, 255, 255, 0.1)' : '0 0 15px rgba(0, 0, 0, 0.1)'
+          }}>
+            <div className="loader">
+              <p>Loading</p>
+              <div className="words">
+                <span className="word">profile</span>
+                <span className="word">details</span>
+                <span className="word">vehicles</span>
+                <span className="word">information</span>
+                <span className="word">profile</span>
+              </div>
             </div>
+          </div>
+          
+          <div className="text-center mt-6">
+            <p className="text-sm opacity-75">Please wait while we fetch your data...</p>
           </div>
         </div>
       </div>
@@ -294,196 +307,605 @@ export default function General({ darkMode }) {
   }
 
   return (
-    <>
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.5 }}
+      className="flex-1"
+    >
       {/* Main Content */}
-      <div className="flex-1 p-8">
-        <h1 className="text-4xl font-bold mb-6">Profile</h1>
-        <div className={`p-6 rounded-lg shadow-lg mb-6 ${darkMode ? "bg-gray-800 text-white" : "bg-white"}`}>
-          <div className="flex justify-between items-center mb-4">
-            <h2 className="text-2xl font-semibold">User Information</h2>
-            <button onClick={() => setIsEditing(!isEditing)} className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition cursor-pointer">
-              {isEditing ? "Cancel" : "Edit"}
-            </button>
-          </div>
-          <div className="space-y-3">
-            <p>
-              <strong>Username:</strong>
-              {isEditing ? (
-                <input className="p-2 border rounded-md" value={userInfo.username} onChange={(e) => setUserInfo({ ...userInfo, username: e.target.value })} />
-              ) : (
-                " " + userInfo.username
-              )}
-            </p>
-            <p className="flex items-center">
-              <strong className="mr-2">Email:</strong>
-              {isEditing ? (
-                <input className="p-2 border rounded-md" value={userInfo.email} onChange={(e) => setUserInfo({ ...userInfo, email: e.target.value })} />
-              ) : (
-                " " + userInfo.email
-              )}
-              {emailVerified ? (
-                <i className="fa-regular fa-circle-check ml-2 text-green-600"></i>
-              ) : (
-                <button onClick={() => handleVerify("email")} className="ml-2 px-2 py-1 bg-green-600 text-white rounded-lg hover:bg-green-700 cursor-pointer">
-                  Verify
-                </button>
-              )}
-            </p>
-            <p className="flex items-center">
-              <strong className="mr-2">Phone:</strong>
-              {isEditing ? (
-                <input className="p-2 border rounded-md" value={userInfo.phone} onChange={(e) => setUserInfo({ ...userInfo, phone: e.target.value })} />
-              ) : (
-                " " + userInfo.phone
-              )}
-              {phoneVerified ? (
-                <i className="fa-regular fa-circle-check ml-2 text-green-600"></i>
-              ) : (
-                <button onClick={() => handleVerify("phone")} className="ml-2 px-2 py-1 bg-green-600 text-white rounded-lg hover:bg-green-700 cursor-pointer">
-                  Verify
-                </button>
-              )}
-            </p>
-            <p>
-              <strong>Password:</strong>
-              {isEditing ? (
-                <input className="p-2 border rounded-md" type="password" value={userInfo.password} onChange={(e) => setUserInfo({ ...userInfo, password: e.target.value })} />
-              ) : (
-                " ********"
-              )}
-            </p>
-          </div>
-          {isEditing && (
-            <button onClick={handleUpdateUserInfo} className="mt-4 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
-              Update
-            </button>
-          )}
-          {verifyingField && (
-            <div className="mt-4">
-              <p>Enter OTP sent to your {verifyingField}:</p>
-              <input type="text" value={otp} onChange={(e) => setOtp(e.target.value)} className="p-2 border rounded-md w-full mt-2" />
-              <div className="flex space-x-2 mt-2">
-                <button className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700" onClick={checkValidation}>
-                  Verify
-                </button>
-                <button className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700" onClick={() => { setVerifyingField(null); setOtp(""); }}>
-                  Cancel
-                </button>
-              </div>
-            </div>
-          )}
-        </div>
-        <div className={`p-6 rounded-lg shadow-lg ${darkMode ? "bg-gray-800 text-white" : "bg-white"}`}>
-          <div className="flex justify-between items-center mb-4">
-            <h2 className="text-2xl font-semibold">Vehicles</h2>
-            <button onClick={() => setShowModal(true)} className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition cursor-pointer">
-              + Add Vehicle
-            </button>
-          </div>
-          <div className="space-y-4">
-            {vehicles.map((vehicle, index) => (
-              <div key={index} className={`flex justify-between items-center p-3 border rounded-md shadow-sm ${darkMode ? "bg-gray-700" : "bg-gray-100"}`}>
-                <span className="font-medium">
-                  {vehicle.plateNo} - {vehicle.carModel}
-                </span>
-                <button
-                  onClick={() => handleDeleteClick(vehicle)}
-                  className="px-3 py-1 bg-red-600 text-white rounded-lg hover:bg-red-700 transition cursor-pointer"
-                >
-                  Delete
-                </button>
-              </div>
-            ))}
-          </div>
-
-          {/* Confirmation Modal */}
-          {deleteModal && (
-            <div
-              className={`fixed inset-0 bg-opacity-50 flex justify-center items-center ${
-                darkMode ? "bg-gray-900" : "bg-white"
-              }`}
-            >
-              <div
-                className={`p-6 rounded-lg shadow-lg w-96 ${
-                  darkMode ? "bg-gray-800 text-white" : "bg-white text-black"
-                }`}
+      <div className="p-8 space-y-8">
+        <motion.h1 
+          initial={{ y: -20, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          transition={{ duration: 0.5 }}
+          className="text-4xl font-bold tracking-tight"
+        >
+          Profile
+        </motion.h1>
+        
+        <AnimatePresence>
+          <motion.div 
+            initial={{ y: 20, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            transition={{ duration: 0.5, delay: 0.1 }}
+            className={`p-8 rounded-xl shadow-xl mb-6 ${
+              darkMode 
+                ? "bg-gray-800 text-white border border-gray-700" 
+                : "bg-white border border-gray-100"
+            } transform transition-all duration-300 hover:shadow-2xl`}
+          >
+            <div className="flex justify-between items-center mb-6">
+              <h2 className="text-2xl font-semibold flex items-center">
+                <span className="mr-2">User Information</span>
+                <span className={`inline-block w-2 h-2 rounded-full ${darkMode ? "bg-blue-400" : "bg-blue-500"} animate-pulse`}></span>
+              </h2>
+              <motion.button 
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                onClick={() => setIsEditing(!isEditing)} 
+                className={`px-5 py-2.5 rounded-lg transition-all duration-300 ${
+                  darkMode 
+                    ? isEditing ? "bg-red-600 hover:bg-red-700" : "bg-blue-600 hover:bg-blue-700"
+                    : isEditing ? "bg-red-500 hover:bg-red-600" : "bg-blue-500 hover:bg-blue-600"
+                } text-white font-medium shadow-md hover:shadow-lg flex items-center space-x-2`}
               >
-                <h2 className="text-xl font-semibold mb-4">Confirm Deletion</h2>
-                {selectedVehicle && (
-                  <p className="mb-4">
-                    Are you sure you want to delete{" "}
-                    <b>{selectedVehicle.carModel}</b> with plate number{" "}
-                    <b>{selectedVehicle.plateNo}</b>?
-                  </p>
-                )}
-                <div className="flex justify-between">
-                  <button
-                    onClick={confirmDeleteVehicle}
-                    className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 cursor-pointer"
-                  >
-                    Yes, Delete
-                  </button>
-                  <button
-                    onClick={() => setDeleteModal(false)}
-                    className="px-4 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 cursor-pointer"
-                  >
-                    Cancel
-                  </button>
+                <span>{isEditing ? "Cancel" : "Edit"}</span>
+                <span className="material-symbols-outlined text-sm">
+                  {isEditing ? "close" : "edit"}
+                </span>
+              </motion.button>
+            </div>
+            
+            <div className="space-y-5">
+              <div className={`p-4 rounded-lg transition-all duration-300 ${
+                darkMode ? "bg-gray-700 hover:bg-gray-600" : "bg-gray-50 hover:bg-gray-100"
+              }`}>
+                <p className="flex items-center">
+                  <span className="w-28 font-medium">Username:</span>
+                  <AnimatePresence mode="wait">
+                    {isEditing ? (
+                      <motion.input
+                        key="username-input"
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: -10 }}
+                        transition={{ duration: 0.2 }}
+                        className={`ml-2 p-2.5 rounded-md w-full max-w-xs ${
+                          darkMode 
+                            ? "bg-gray-800 border border-gray-600 text-white" 
+                            : "bg-white border border-gray-300 text-black"
+                        } focus:ring-2 focus:ring-blue-500 focus:outline-none transition-all`}
+                        value={userInfo.username}
+                        onChange={(e) => setUserInfo({ ...userInfo, username: e.target.value })}
+                      />
+                    ) : (
+                      <motion.span
+                        key="username-text"
+                        initial={{ opacity: 0, y: -10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: 10 }}
+                        transition={{ duration: 0.2 }}
+                        className="ml-2 text-lg"
+                      >
+                        {userInfo.username}
+                      </motion.span>
+                    )}
+                  </AnimatePresence>
+                </p>
+              </div>
+
+              <div className={`p-4 rounded-lg transition-all duration-300 ${
+                darkMode ? "bg-gray-700 hover:bg-gray-600" : "bg-gray-50 hover:bg-gray-100"
+              }`}>
+                <div className="flex items-center flex-wrap sm:flex-nowrap">
+                  <span className="w-28 font-medium">Email:</span>
+                  <AnimatePresence mode="wait">
+                    {isEditing ? (
+                      <motion.input
+                        key="email-input"
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: -10 }}
+                        transition={{ duration: 0.2 }}
+                        className={`ml-2 p-2.5 rounded-md w-full sm:max-w-xs ${
+                          darkMode 
+                            ? "bg-gray-800 border border-gray-600 text-white" 
+                            : "bg-white border border-gray-300 text-black"
+                        } focus:ring-2 focus:ring-blue-500 focus:outline-none transition-all`}
+                        value={userInfo.email}
+                        onChange={(e) => setUserInfo({ ...userInfo, email: e.target.value })}
+                      />
+                    ) : (
+                      <motion.span
+                        key="email-text"
+                        initial={{ opacity: 0, y: -10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: 10 }}
+                        transition={{ duration: 0.2 }}
+                        className="ml-2 text-lg"
+                      >
+                        {userInfo.email}
+                      </motion.span>
+                    )}
+                  </AnimatePresence>
+                  <div className="ml-auto mt-2 sm:mt-0">
+                    {emailVerified ? (
+                      <motion.div
+                        initial={{ scale: 0 }}
+                        animate={{ scale: 1 }}
+                        transition={{ type: "spring", stiffness: 200 }}
+                        className="flex items-center text-green-500 font-medium"
+                      >
+                        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-1" viewBox="0 0 20 20" fill="currentColor">
+                          <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                        </svg>
+                        Verified
+                      </motion.div>
+                    ) : (
+                      <motion.button 
+                        whileHover={{ scale: 1.05 }}
+                        whileTap={{ scale: 0.95 }}
+                        onClick={() => handleVerify("email")} 
+                        className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-all shadow-md hover:shadow-lg flex items-center"
+                      >
+                        <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1" viewBox="0 0 20 20" fill="currentColor">
+                          <path fillRule="evenodd" d="M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812 3.066 3.066 0 00-.723-1.745 3.066 3.066 0 010-3.976 3.066 3.066 0 00.723-1.745 3.066 3.066 0 012.812-2.812zm7.44 5.252a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                        </svg>
+                        Verify
+                      </motion.button>
+                    )}
+                  </div>
                 </div>
               </div>
-            </div>
-          )}
-        </div>
-      </div>
-      {/* // </div> */}
 
-      {showModal && (
-        <div
-          className={`fixed inset-0 bg-opacity-50 flex justify-center items-center ${
-            darkMode ? "bg-gray-900" : "bg-white"
-          }`}
+              <div className={`p-4 rounded-lg transition-all duration-300 ${
+                darkMode ? "bg-gray-700 hover:bg-gray-600" : "bg-gray-50 hover:bg-gray-100"
+              }`}>
+                <div className="flex items-center flex-wrap sm:flex-nowrap">
+                  <span className="w-28 font-medium">Phone:</span>
+                  <AnimatePresence mode="wait">
+                    {isEditing ? (
+                      <motion.input
+                        key="phone-input"
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: -10 }}
+                        transition={{ duration: 0.2 }}
+                        className={`ml-2 p-2.5 rounded-md w-full sm:max-w-xs ${
+                          darkMode 
+                            ? "bg-gray-800 border border-gray-600 text-white" 
+                            : "bg-white border border-gray-300 text-black"
+                        } focus:ring-2 focus:ring-blue-500 focus:outline-none transition-all`}
+                        value={userInfo.phone}
+                        onChange={(e) => setUserInfo({ ...userInfo, phone: e.target.value })}
+                      />
+                    ) : (
+                      <motion.span
+                        key="phone-text"
+                        initial={{ opacity: 0, y: -10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: 10 }}
+                        transition={{ duration: 0.2 }}
+                        className="ml-2 text-lg"
+                      >
+                        {userInfo.phone}
+                      </motion.span>
+                    )}
+                  </AnimatePresence>
+                  <div className="ml-auto mt-2 sm:mt-0">
+                    {phoneVerified ? (
+                      <motion.div
+                        initial={{ scale: 0 }}
+                        animate={{ scale: 1 }}
+                        transition={{ type: "spring", stiffness: 200 }}
+                        className="flex items-center text-green-500 font-medium"
+                      >
+                        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-1" viewBox="0 0 20 20" fill="currentColor">
+                          <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                        </svg>
+                        Verified
+                      </motion.div>
+                    ) : (
+                      <motion.button 
+                        whileHover={{ scale: 1.05 }}
+                        whileTap={{ scale: 0.95 }}
+                        onClick={() => handleVerify("phone")} 
+                        className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-all shadow-md hover:shadow-lg flex items-center"
+                      >
+                        <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1" viewBox="0 0 20 20" fill="currentColor">
+                          <path fillRule="evenodd" d="M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812 3.066 3.066 0 00-.723-1.745 3.066 3.066 0 010-3.976 3.066 3.066 0 00.723-1.745 3.066 3.066 0 012.812-2.812zm7.44 5.252a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                        </svg>
+                        Verify
+                      </motion.button>
+                    )}
+                  </div>
+                </div>
+              </div>
+
+              <div className={`p-4 rounded-lg transition-all duration-300 ${
+                darkMode ? "bg-gray-700 hover:bg-gray-600" : "bg-gray-50 hover:bg-gray-100"
+              }`}>
+                <p className="flex items-center">
+                  <span className="w-28 font-medium">Password:</span>
+                  <AnimatePresence mode="wait">
+                    {isEditing ? (
+                      <motion.input
+                        key="password-input"
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: -10 }}
+                        transition={{ duration: 0.2 }}
+                        className={`ml-2 p-2.5 rounded-md w-full max-w-xs ${
+                          darkMode 
+                            ? "bg-gray-800 border border-gray-600 text-white" 
+                            : "bg-white border border-gray-300 text-black"
+                        } focus:ring-2 focus:ring-blue-500 focus:outline-none transition-all`}
+                        type="password"
+                        value={userInfo.password || ""}
+                        onChange={(e) => setUserInfo({ ...userInfo, password: e.target.value })}
+                      />
+                    ) : (
+                      <motion.span
+                        key="password-text"
+                        initial={{ opacity: 0, y: -10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: 10 }}
+                        transition={{ duration: 0.2 }}
+                        className="ml-2 tracking-widest text-lg"
+                      >
+                        ********
+                      </motion.span>
+                    )}
+                  </AnimatePresence>
+                </p>
+              </div>
+            </div>
+            
+            <AnimatePresence>
+              {isEditing && (
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: 20 }}
+                  transition={{ duration: 0.3 }}
+                  className="mt-6"
+                >
+                  <motion.button 
+                    whileHover={{ scale: 1.03 }}
+                    whileTap={{ scale: 0.97 }}
+                    onClick={handleUpdateUserInfo} 
+                    className={`w-full px-6 py-3 flex justify-center items-center rounded-xl ${
+                      darkMode ? "bg-blue-600 hover:bg-blue-700" : "bg-blue-500 hover:bg-blue-600"
+                    } text-white font-semibold shadow-lg hover:shadow-xl transition-all duration-300`}
+                  >
+                    <span className="mr-2">Update Information</span>
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                      <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-8.707l-3-3a1 1 0 00-1.414 0l-3 3a1 1 0 001.414 1.414L9 9.414V13a1 1 0 102 0V9.414l1.293 1.293a1 1 0 001.414-1.414z" clipRule="evenodd" />
+                    </svg>
+                  </motion.button>
+                </motion.div>
+              )}
+            </AnimatePresence>
+            
+            <AnimatePresence>
+              {verifyingField && (
+                <motion.div
+                  initial={{ opacity: 0, height: 0 }}
+                  animate={{ opacity: 1, height: "auto" }}
+                  exit={{ opacity: 0, height: 0 }}
+                  transition={{ duration: 0.3 }}
+                  className="mt-6 overflow-hidden"
+                >
+                  <div className={`p-5 rounded-xl ${
+                    darkMode ? "bg-gray-700" : "bg-gray-100"
+                  } border-l-4 border-blue-500`}>
+                    <h3 className="text-lg font-medium mb-3">
+                      Verify your {verifyingField === "email" ? "email address" : "phone number"}
+                    </h3>
+                    <p className="mb-4 opacity-80">
+                      Enter the OTP sent to your {verifyingField === "email" ? "email" : "phone"}:
+                    </p>
+                    <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center">
+                      <input 
+                        type="text" 
+                        value={otp} 
+                        onChange={(e) => setOtp(e.target.value)}
+                        className={`p-3 text-lg text-center letter-spacing-1 rounded-lg w-full sm:max-w-[150px] border-2 ${
+                          darkMode ? "bg-gray-800 border-gray-600 text-white" : "bg-white border-gray-300 text-gray-900"
+                        } focus:ring-2 focus:ring-blue-500 focus:outline-none transition-all`}
+                        placeholder="Enter OTP"
+                      />
+                      <div className="flex gap-3">
+                        <motion.button 
+                          whileHover={{ scale: 1.05 }}
+                          whileTap={{ scale: 0.95 }}
+                          onClick={checkValidation} 
+                          className="px-5 py-2.5 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-all shadow-md hover:shadow-lg flex items-center"
+                        >
+                          <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-1" viewBox="0 0 20 20" fill="currentColor">
+                            <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                          </svg>
+                          Verify
+                        </motion.button>
+                        <motion.button 
+                          whileHover={{ scale: 1.05 }}
+                          whileTap={{ scale: 0.95 }}
+                          onClick={() => { setVerifyingField(null); setOtp(""); }}
+                          className="px-5 py-2.5 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-all shadow-md hover:shadow-lg flex items-center"
+                        >
+                          <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-1" viewBox="0 0 20 20" fill="currentColor">
+                            <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
+                          </svg>
+                          Cancel
+                        </motion.button>
+                      </div>
+                    </div>
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </motion.div>
+        </AnimatePresence>
+        
+        <motion.div 
+          initial={{ y: 20, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          transition={{ duration: 0.5, delay: 0.2 }}
+          className={`p-8 rounded-xl shadow-xl ${
+            darkMode 
+              ? "bg-gray-800 text-white border border-gray-700" 
+              : "bg-white border border-gray-100"
+          } transform transition-all duration-300 hover:shadow-2xl`}
         >
-          <div
-            className={`p-6 rounded-lg shadow-lg w-96 ${
-              darkMode ? "bg-gray-800 text-white" : "bg-white text-black"
+          <div className="flex justify-between items-center mb-6">
+            <h2 className="text-2xl font-semibold flex items-center">
+              <span className="mr-2">Vehicles</span>
+              <span className={`inline-block w-2 h-2 rounded-full ${darkMode ? "bg-blue-400" : "bg-blue-500"} animate-pulse`}></span>
+            </h2>
+            <motion.button 
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              onClick={() => setShowModal(true)} 
+              className={`px-5 py-2.5 rounded-lg transition-all duration-300 ${
+                darkMode 
+                  ? "bg-blue-600 hover:bg-blue-700" 
+                  : "bg-blue-500 hover:bg-blue-600"
+              } text-white font-medium shadow-md hover:shadow-lg flex items-center`}
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-1" viewBox="0 0 20 20" fill="currentColor">
+                <path fillRule="evenodd" d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z" clipRule="evenodd" />
+              </svg>
+              Add Vehicle
+            </motion.button>
+          </div>
+          
+          <div className="space-y-4">
+            {vehicles.length === 0 ? (
+              <motion.div 
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ duration: 0.5 }}
+                className={`p-8 text-center rounded-lg border-2 border-dashed ${
+                  darkMode ? "border-gray-700 text-gray-400" : "border-gray-300 text-gray-500"
+                }`}
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-12 w-12 mx-auto mb-3 opacity-50" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M8 7h12m0 0l-4-4m4 4l-4 4m-4 6H4m0 0l4 4m-4-4l4-4" />
+                </svg>
+                <p className="text-lg">No vehicles added yet</p>
+                <p className="mt-2 text-sm">Click the "Add Vehicle" button to register your first vehicle</p>
+              </motion.div>
+            ) : (
+              <div className="grid gap-4">
+                {vehicles.map((vehicle, index) => (
+                  <motion.div 
+                    key={vehicle.plateNo}
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ duration: 0.3, delay: index * 0.1 }}
+                    whileHover={{ scale: 1.01 }}
+                    className={`flex justify-between items-center p-5 border rounded-xl shadow-sm ${
+                      darkMode ? "bg-gray-700 hover:bg-gray-650 border-gray-600" : "bg-gray-50 hover:bg-gray-100 border-gray-200"
+                    } transition-all duration-200`}
+                  >
+                    <div className="flex items-center space-x-4">
+                      <div className={`p-3 rounded-full ${darkMode ? "bg-gray-800" : "bg-gray-200"}`}>
+                        <svg xmlns="http://www.w3.org/2000/svg" className={`h-6 w-6 ${darkMode ? "text-blue-400" : "text-blue-600"}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                      </div>
+                      <div>
+                        <p className="font-bold text-lg">{vehicle.plateNo}</p>
+                        <p className={darkMode ? "text-gray-400" : "text-gray-600"}>{vehicle.carModel}</p>
+                      </div>
+                    </div>
+                    <motion.button
+                      whileHover={{ scale: 1.05 }}
+                      whileTap={{ scale: 0.95 }}
+                      onClick={() => handleDeleteClick(vehicle)}
+                      className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-all shadow-md hover:shadow-lg flex items-center"
+                    >
+                      <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1" viewBox="0 0 20 20" fill="currentColor">
+                        <path fillRule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clipRule="evenodd" />
+                      </svg>
+                      Delete
+                    </motion.button>
+                  </motion.div>
+                ))}
+              </div>
+            )}
+          </div>
+        </motion.div>
+      </div>
+
+      {/* Delete Confirmation Modal */}
+      <AnimatePresence>
+        {deleteModal && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.2 }}
+            className={`fixed inset-0 flex items-center justify-center z-50 p-4 ${
+              darkMode 
+                ? "bg-gray-900 bg-opacity-80 backdrop-blur-sm" 
+                : "bg-gray-200 bg-opacity-75 backdrop-blur-sm"
             }`}
           >
-            <h2 className="text-xl font-semibold mb-4">Add Vehicle</h2>
-            <input
-              type="text"
-              placeholder="Plate Number"
-              value={newPlate}
-              onChange={(e) => setNewPlate(e.target.value.toUpperCase())}
-              className={`w-full p-2 mb-3 border rounded-md ${
-                darkMode ? "text-white" : "text-black"
+            <motion.div
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.9, opacity: 0 }}
+              transition={{ type: "spring", stiffness: 300, damping: 30 }}
+              className={`relative p-8 w-full max-w-md rounded-xl shadow-2xl ${
+                darkMode 
+                  ? "bg-gray-800 text-white border border-gray-700" 
+                  : "bg-white text-gray-900 border border-gray-200"
               }`}
-            />
-            <input
-              type="text"
-              placeholder="Car Name"
-              value={newCarName}
-              onChange={(e) => setNewCarName(e.target.value)}
-              className={`w-full p-2 mb-3 border rounded-md ${
-                darkMode ? "text-white" : "text-black"
+            >
+              <div className="text-center mb-6">
+                <div className={`mx-auto w-16 h-16 flex items-center justify-center rounded-full mb-4 ${darkMode ? "bg-red-900" : "bg-red-100"}`}>
+                  <svg xmlns="http://www.w3.org/2000/svg" className={`h-8 w-8 ${darkMode ? "text-red-500" : "text-red-600"}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                  </svg>
+                </div>
+                <h2 className="text-2xl font-bold mb-2">Confirm Deletion</h2>
+                {selectedVehicle && (
+                  <p className={`mb-6 ${darkMode ? "text-gray-300" : "text-gray-600"}`}>
+                    Are you sure you want to delete <br />
+                    <span className="font-semibold inline-block mt-2">{selectedVehicle.carModel}</span> with plate number <br />
+                    <span className={`font-bold text-lg mt-1 inline-block ${darkMode ? "text-red-400" : "text-red-600"}`}>{selectedVehicle.plateNo}</span>?
+                  </p>
+                )}
+              </div>
+              
+              <div className="flex gap-4">
+                <motion.button
+                  whileHover={{ scale: 1.03 }}
+                  whileTap={{ scale: 0.97 }}
+                  onClick={() => setDeleteModal(false)}
+                  className={`flex-1 py-3 rounded-lg font-medium ${
+                    darkMode 
+                      ? "bg-gray-700 hover:bg-gray-600 text-gray-300" 
+                      : "bg-gray-200 hover:bg-gray-300 text-gray-800"
+                  } transition-all duration-200`}
+                >
+                  Cancel
+                </motion.button>
+                <motion.button
+                  whileHover={{ scale: 1.03 }}
+                  whileTap={{ scale: 0.97 }}
+                  onClick={confirmDeleteVehicle}
+                  className="flex-1 py-3 bg-red-600 hover:bg-red-700 text-white font-medium rounded-lg shadow-lg hover:shadow-xl transition-all duration-200"
+                >
+                  Delete
+                </motion.button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Add Vehicle Modal */}
+      <AnimatePresence>
+        {showModal && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.2 }}
+            className={`fixed inset-0 flex items-center justify-center z-50 p-4 ${
+              darkMode 
+                ? "bg-gray-900 bg-opacity-80 backdrop-blur-sm" 
+                : "bg-gray-200 bg-opacity-75 backdrop-blur-sm"
+            }`}
+          >
+            <motion.div
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.9, opacity: 0 }}
+              transition={{ type: "spring", stiffness: 300, damping: 30 }}
+              className={`relative p-8 w-full max-w-md rounded-xl shadow-2xl ${
+                darkMode 
+                  ? "bg-gray-800 text-white border border-gray-700" 
+                  : "bg-white text-gray-900 border border-gray-200"
               }`}
-            />
-            <div className="flex justify-between">
-              <button
-                onClick={handleAddVehicle}
-                className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 cursor-pointer"
-              >
-                Add
-              </button>
-              <button
-                onClick={() => setShowModal(false)}
-                className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 cursor-pointer"
-              >
-                Cancel
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-    </>
+            >
+              <div className="text-center mb-6">
+                <div className={`mx-auto w-16 h-16 flex items-center justify-center rounded-full mb-4 ${darkMode ? "bg-blue-900" : "bg-blue-100"}`}>
+                  <svg xmlns="http://www.w3.org/2000/svg" className={`h-8 w-8 ${darkMode ? "text-blue-500" : "text-blue-600"}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                  </svg>
+                </div>
+                <h2 className="text-2xl font-bold mb-2">Add New Vehicle</h2>
+                <p className={`mb-6 ${darkMode ? "text-gray-300" : "text-gray-600"}`}>
+                  Enter your vehicle details below
+                </p>
+              </div>
+              
+              <div className="space-y-4 mb-6">
+                <div>
+                  <label className={`block mb-2 text-sm font-medium ${darkMode ? "text-gray-300" : "text-gray-700"}`}>
+                    Plate Number
+                  </label>
+                  <input
+                    type="text"
+                    placeholder="e.g., AB123XY"
+                    value={newPlate}
+                    onChange={(e) => setNewPlate(e.target.value.toUpperCase())}
+                    className={`w-full p-3 rounded-lg border-2 ${
+                      darkMode 
+                        ? "bg-gray-700 border-gray-600 text-white" 
+                        : "bg-white border-gray-300 text-black"
+                    } focus:ring-2 focus:ring-blue-500 focus:outline-none transition-all`}
+                  />
+                </div>
+                
+                <div>
+                  <label className={`block mb-2 text-sm font-medium ${darkMode ? "text-gray-300" : "text-gray-700"}`}>
+                    Car Model
+                  </label>
+                  <input
+                    type="text"
+                    placeholder="e.g., Toyota Camry"
+                    value={newCarName}
+                    onChange={(e) => setNewCarName(e.target.value)}
+                    className={`w-full p-3 rounded-lg border-2 ${
+                      darkMode 
+                        ? "bg-gray-700 border-gray-600 text-white" 
+                        : "bg-white border-gray-300 text-black"
+                    } focus:ring-2 focus:ring-blue-500 focus:outline-none transition-all`}
+                  />
+                </div>
+              </div>
+              
+              <div className="flex gap-4">
+                <motion.button
+                  whileHover={{ scale: 1.03 }}
+                  whileTap={{ scale: 0.97 }}
+                  onClick={() => setShowModal(false)}
+                  className={`flex-1 py-3 rounded-lg font-medium ${
+                    darkMode 
+                      ? "bg-gray-700 hover:bg-gray-600 text-gray-300" 
+                      : "bg-gray-200 hover:bg-gray-300 text-gray-800"
+                  } transition-all duration-200`}
+                >
+                  Cancel
+                </motion.button>
+                <motion.button
+                  whileHover={{ scale: 1.03 }}
+                  whileTap={{ scale: 0.97 }}
+                  onClick={handleAddVehicle}
+                  className="flex-1 py-3 bg-green-600 hover:bg-green-700 text-white font-medium rounded-lg shadow-lg hover:shadow-xl transition-all duration-200"
+                >
+                  Add Vehicle
+                </motion.button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </motion.div>
   );
 }
