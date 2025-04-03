@@ -55,14 +55,14 @@ export default function Navbar({ darkMode, setDarkMode }) {
 
   return (
     <nav
-      className={`p-4 shadow-lg w-full fixed top-0 left-0 transition-colors z-50 duration-300 ${
+      className={`p-4 shadow-lg w-full fixed top-0 left-0 transition-colors z-50 h-18 flex flex-col justify-center duration-300 ${
         darkMode ? "bg-gray-900 text-white" : "bg-white text-gray-900"
       }`}
     >
       <div className="container mx-auto flex justify-between items-center">
         {/* Logo */}
-        <Link to={"/"} className="text-xl font-bold">
-          <i className="fa-solid fa-dna mr-2 text-2xl"></i>
+        <Link to={"/"} className="text-xl font-bold flex items-center justify-center">
+          <img src="/logo.png" alt="Logo" className="h-10 w-10 mr-3 mb-2" />
           Parking Guardian
         </Link>
 
@@ -132,7 +132,7 @@ export default function Navbar({ darkMode, setDarkMode }) {
                 }
               }}
             />
-            <div className="circle relative w-12 h-12 rounded-full bg-orange-500 flex items-center justify-center transition-transform duration-300">
+            <div className="circle relative w-12 h-12 rounded-full  flex items-center justify-center transition-transform duration-300" style={!darkMode ? {background: 'linear-gradient(45deg, orangered, yellow)'} : {background: 'white'}}>
               <div className="crescent absolute w-10 h-10 bg-white rounded-full transform transition-transform duration-300"></div>
             </div>
           </label>
