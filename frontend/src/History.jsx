@@ -94,22 +94,22 @@ export default function History({ darkMode, historyData }) {
           const mapId = `map-${index}`;
           
           return (
-            <div key={mapId} className="bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden mx-3 w-90 ml-7 mb-7">
+            <div key={mapId} className={`rounded-lg shadow-md overflow-hidden mx-3 w-90 ml-7 mb-7 ${darkMode ? "bg-gray-800" : "bg-white"}`}>
               {/* Content Section */}
               <div className="p-4">
                 <h3 className="text-4xl font-semibold mb-2">
                   {entry.carModel}
                 </h3>
-                <p className="text-gray-600 dark:text-gray-300 mb-1">
+                <p className={`${darkMode ? "text-white" : "text-gray-600"} mb-1`}>
                   Complaint by: {entry.from}
                 </p>
-                <p className="text-gray-600 dark:text-gray-300 mb-1">
+                <p className={`${darkMode ? "text-white" : "text-gray-600"} mb-1`}>
                   Plate No: {entry.plateNo}
                 </p>
-                <p className="text-gray-600 dark:text-gray-300 mb-1">
+                <p className={`${darkMode ? "text-white" : "text-gray-600"} mb-1`}>
                   Reported on: {new Date(entry.timestamp).toLocaleString()}
                 </p>
-                <p className="text-gray-600 dark:text-gray-300 mb-1">
+                <p className={`${darkMode ? "text-white" : "text-gray-600"} mb-1`}>
                   Type: {entry.type}
                 </p>
               </div>

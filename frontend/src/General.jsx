@@ -311,7 +311,7 @@ export default function General({ darkMode }) {
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ duration: 0.5 }}
-      className="flex-1"
+      className="flex-1 mt-18"
     >
       {/* Main Content */}
       <div className="p-8 space-y-8">
@@ -351,9 +351,9 @@ export default function General({ darkMode }) {
                 } text-white font-medium shadow-md hover:shadow-lg flex items-center space-x-2`}
               >
                 <span>{isEditing ? "Cancel" : "Edit"}</span>
-                <span className="material-symbols-outlined text-sm">
+                {/* <span className="material-symbols-outlined text-sm">
                   {isEditing ? "close" : "edit"}
-                </span>
+                </span> */}
               </motion.button>
             </div>
             
