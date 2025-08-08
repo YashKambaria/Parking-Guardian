@@ -1,4 +1,4 @@
-package net.engineeringdigest.journalApp.Repositories;
+package net.engineeringdigest.journalApp.repositories;
 
 
 

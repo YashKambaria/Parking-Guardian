@@ -1,4 +1,4 @@
-package net.engineeringdigest.journalApp.Services;
+package net.engineeringdigest.journalApp.services;
 
 import lombok.extern.slf4j.Slf4j;
 import net.engineeringdigest.journalApp.Entities.ParkingIssueRequest;

@@ -1,4 +1,4 @@
-package net.engineeringdigest.journalApp.Services;
+package net.engineeringdigest.journalApp.services;
 
 
 import com.twilio.Twilio;
@@ -9,7 +9,7 @@ import lombok.extern.slf4j.Slf4j;
 import net.engineeringdigest.journalApp.Entities.Complains;
 import net.engineeringdigest.journalApp.Entities.ParkingIssueRequest;
 import net.engineeringdigest.journalApp.Entities.UserEntity;
-import net.engineeringdigest.journalApp.Repositories.UserRepository;
+import net.engineeringdigest.journalApp.repositories.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;

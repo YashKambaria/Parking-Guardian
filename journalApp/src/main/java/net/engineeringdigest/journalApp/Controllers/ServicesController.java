@@ -1,13 +1,13 @@
-package net.engineeringdigest.journalApp.Controllers;
+package net.engineeringdigest.journalApp.controllers;
 
 import lombok.extern.slf4j.Slf4j;
 import net.engineeringdigest.journalApp.Entities.ParkingIssueRequest;
 import net.engineeringdigest.journalApp.Entities.UserEntity;
-import net.engineeringdigest.journalApp.Repositories.UserRepository;
-import net.engineeringdigest.journalApp.Services.EmailService;
-import net.engineeringdigest.journalApp.Services.OtpService;
-import net.engineeringdigest.journalApp.Services.PhoneService;
-import net.engineeringdigest.journalApp.Services.UserService;
+import net.engineeringdigest.journalApp.repositories.UserRepository;
+import net.engineeringdigest.journalApp.services.EmailService;
+import net.engineeringdigest.journalApp.services.OtpService;
+import net.engineeringdigest.journalApp.services.PhoneService;
+import net.engineeringdigest.journalApp.services.UserService;
 import net.engineeringdigest.journalApp.utils.JwtUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
