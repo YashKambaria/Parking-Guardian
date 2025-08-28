@@ -4,14 +4,12 @@ import lombok.extern.slf4j.Slf4j;
 import net.engineeringdigest.journalApp.Entities.ParkingIssueRequest;
 import net.engineeringdigest.journalApp.Entities.UserEntity;
 import net.engineeringdigest.journalApp.repositories.UserRepository;
-import net.engineeringdigest.journalApp.services.EmailService;
-import net.engineeringdigest.journalApp.services.OtpService;
-import net.engineeringdigest.journalApp.services.PhoneService;
-import net.engineeringdigest.journalApp.services.UserService;
+import net.engineeringdigest.journalApp.services.*;
 import net.engineeringdigest.journalApp.utils.JwtUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
@@ -42,6 +40,8 @@ public class ServicesController {
 	@Autowired
 	public PhoneService phoneService;
 	
+	@Autowired
+	public NotificationService notificationService;
 	//this is used when the user will do the complain due to traffic
 	@PostMapping("/sendSMS")
 	public ResponseEntity<?> sendMessage(@RequestBody ParkingIssueRequest request) {
@@ -55,11 +55,13 @@ public class ServicesController {
 				vehicleOwner.setComplaintsCount(vehicleOwner.getComplaintsCount() + 1);
 				userRepository.save(vehicleOwner);
 				
+				
+				
 				if (vehicleOwner.getComplaintsCount() >= 5) {
-					emailService.sendAlert(vehicleOwner, request);
+					notificationService.sendMail(vehicleOwner,request);
 				}
 				try{
-				phoneService.sendSMS(request, fromUsername);
+				   notificationService.sendAlert(fromUsername,request);
 				return new ResponseEntity<>("Message Sent Successfully", HttpStatus.OK);
 				}
 				catch (Exception e){
@@ -72,6 +74,15 @@ public class ServicesController {
 		} catch (Exception e) {
 			return ResponseEntity.badRequest().body("Error processing request");
 		}
+	}
+	
+	@Async
+	public void sendMail(UserEntity vehicleOwner,ParkingIssueRequest request){
+		emailService.sendAlert(vehicleOwner, request);
+	}
+	@Async
+	public void sendAlert(String fromUsername,ParkingIssueRequest request){
+		phoneService.sendSMS(request, fromUsername);
 	}
 	
 	@PostMapping("/UrgentCall")
