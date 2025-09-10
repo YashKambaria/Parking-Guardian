@@ -26,4 +26,8 @@ public class NotificationService {
 	public void sendAlert(String fromUsername, ParkingIssueRequest request) {
 		phoneService.sendSMS(request, fromUsername);
 	}
+	@Async
+	public void makeCall(String fromUsername, ParkingIssueRequest request) {
+		phoneService.makeCall(fromUsername,request);
+	}
 }

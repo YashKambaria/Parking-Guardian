@@ -28,3 +28,9 @@ Twilio:
 
 Jwt:
   KEY: ${KEY}
+
+logging:
+  file:
+    name: logs/journalapp.log
+  level:
+    root: info

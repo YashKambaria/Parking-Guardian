@@ -21,7 +21,7 @@ import java.util.Map;
 @Slf4j
 @RestController
 @RequestMapping("/public")
-public class publicController {
+public class PublicController {
 	
 	@Autowired
 	private UserService userService;

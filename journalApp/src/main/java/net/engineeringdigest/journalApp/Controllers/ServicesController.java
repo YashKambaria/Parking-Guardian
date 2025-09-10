@@ -98,11 +98,14 @@ public class ServicesController {
 				userRepository.save(vehicleOwner);
 				
 				// Send alert email if complaints reach 5
+				long start=System.currentTimeMillis();
 				if (vehicleOwner.getComplaintsCount() >= 5) {
-					emailService.sendAlert(vehicleOwner, plateNo);
+					notificationService.sendMail(vehicleOwner, request);
 				}
 				try {
-					phoneService.makeCall(FromUsername, request);
+					notificationService.makeCall(FromUsername, request);
+					long end=System.currentTimeMillis();
+					log.info("Controller finished in {} ms", (end - start));
 					return new ResponseEntity<>("Calling user successfully ", HttpStatus.OK);
 				}
 				catch (Exception e){
