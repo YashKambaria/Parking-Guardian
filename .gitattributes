@@ -1,0 +1,22 @@
+# Ignore vendored / generated directories
+node_modules/** linguist-vendored
+vendor/** linguist-vendored
+build/** linguist-vendored
+dist/** linguist-vendored
+target/** linguist-vendored
+out/** linguist-vendored
+
+# Ignore notebooks and generated files
+*.ipynb linguist-generated
+*.json linguist-generated
+*.lock linguist-generated
+
+# Ignore binaries
+*.jar linguist-generated
+*.class linguist-generated
+*.exe linguist-generated
+*.dll linguist-generated
+*.so linguist-generated
+
+# Force Java detection
+*.java linguist-language=Java
