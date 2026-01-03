@@ -1,22 +1,40 @@
-# Ignore vendored / generated directories
-node_modules/** linguist-vendored
-vendor/** linguist-vendored
-build/** linguist-vendored
-dist/** linguist-vendored
-target/** linguist-vendored
-out/** linguist-vendored
+########################################
+# Universal linguist rules (forced)
+########################################
 
-# Ignore notebooks and generated files
-*.ipynb linguist-generated
-*.json linguist-generated
-*.lock linguist-generated
+* linguist-detectable=false
+**/*.java linguist-detectable=true
 
-# Ignore binaries
-*.jar linguist-generated
-*.class linguist-generated
-*.exe linguist-generated
-*.dll linguist-generated
-*.so linguist-generated
+**/ml/** linguist-vendored
+**/model/** linguist-vendored
+**/models/** linguist-vendored
+**/data/** linguist-vendored
+**/dataset/** linguist-vendored
+**/notebooks/** linguist-vendored
+**/chatAI/** linguist-vendored
+**/CreditScorePrediction-main/** linguist-vendored
 
-# Force Java detection
-*.java linguist-language=Java
+**/frontend/** linguist-vendored
+**/ui/** linguist-vendored
+**/web/** linguist-vendored
+**/client/** linguist-vendored
+
+**/android/** linguist-vendored
+**/ios/** linguist-vendored
+**/linux/** linguist-vendored
+**/macos/** linguist-vendored
+**/windows/** linguist-vendored
+**/assets/** linguist-vendored
+
+**/node_modules/** linguist-vendored
+**/vendor/** linguist-vendored
+**/build/** linguist-vendored
+**/dist/** linguist-vendored
+**/target/** linguist-vendored
+**/out/** linguist-vendored
+
+**/*.ipynb linguist-generated
+**/*.json linguist-generated
+**/*.lock linguist-generated
+**/*.jar linguist-generated
+**/*.class linguist-generated
