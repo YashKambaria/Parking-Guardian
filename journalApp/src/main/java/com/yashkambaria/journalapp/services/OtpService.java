@@ -1,0 +1,59 @@
+package com.yashkambaria.journalapp.services;
+
+import lombok.extern.slf4j.Slf4j;
+import com.yashkambaria.journalapp.Entities.UserEntity;
+import com.yashkambaria.journalapp.repositories.UserRepository;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
+import java.util.Random;
+
+@Service
+@Slf4j
+public class OtpService {
+	@Autowired
+	public UserRepository userRepository;
+	@Autowired
+	public EmailService emailService;
+	@Autowired
+	public PhoneService phoneService;
+	
+	public String generateOTP(){
+		Random random=new Random();
+		int otpvalue=100000+random.nextInt(900000);
+		return String.valueOf(otpvalue);
+	}
+	public boolean EmailOTP(UserEntity user){
+		try {
+			String generatedOTP = generateOTP();
+			Instant expiry = Instant.now().plus(5, ChronoUnit.MINUTES);
+			user.setOtpExpiryTime(expiry);
+			user.setOTP(generatedOTP);
+			userRepository.save(user);
+			emailService.sendOTP(user, generatedOTP);
+			return true;
+		}
+		catch (Exception e) {
+			log.error("error while sending otp via Mail ",e);
+			return false;
+		}
+	}
+	
+	public boolean PhoneOTP(UserEntity user) {
+		try {
+			String generatedOTP = generateOTP();
+			Instant expiry = Instant.now().plus(5, ChronoUnit.MINUTES);
+			user.setOtpExpiryTime(expiry);
+			user.setOTP(generatedOTP);
+			userRepository.save(user);
+			phoneService.sendOTP(user, generatedOTP);
+			return true;
+		}
+		catch (Exception e){
+			return false;
+		}
+		
+	}
+}
