@@ -19,7 +19,6 @@ import java.util.Optional;
 @RestController
 @RequestMapping("/userServices")
 @Slf4j
-@CrossOrigin(origins = "http://localhost:5173")
 public class ServicesController {
 	
 	@Autowired

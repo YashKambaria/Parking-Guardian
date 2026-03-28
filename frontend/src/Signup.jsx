@@ -2,6 +2,7 @@ import { useContext, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
 import { AuthContext } from "./AuthContext";
+import { BASE_URL } from "./config";
 
 export default function Signup() {
     const navigate = useNavigate();
@@ -65,7 +66,7 @@ export default function Signup() {
 
         try {
             const response = await axios.post(
-                "http://localhost:8080/public/sign-up",
+                `${BASE_URL}/public/sign-up`,
                 { username, email, phoneNo, vehicles: newVehicles, password },
                 { headers: { "Content-Type": "application/json" }, responseType: "text" }
             );

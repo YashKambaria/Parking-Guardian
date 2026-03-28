@@ -2,6 +2,7 @@ import { useContext, useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
 import { AuthContext } from "./AuthContext";
+import { BASE_URL } from "./config";
 
 export default function Login() {
     const { accessReason } = useContext(AuthContext);
@@ -39,7 +40,7 @@ export default function Login() {
 
         try {
             const response = await axios.post(
-                "http://localhost:8080/public/login",
+                `${BASE_URL}/public/login`,
                 { username, password },
                 {
                     headers: { "Content-Type": "application/json" },

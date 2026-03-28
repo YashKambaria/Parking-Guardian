@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
+import { BASE_URL } from "./config";
 
 export default function General({ darkMode }) {
   const [vehicles, setVehicles] = useState([]);
@@ -28,7 +29,7 @@ export default function General({ darkMode }) {
     try{
       const token=localStorage.getItem("token");
       if (selectedVehicle) {
-        const response = await fetch("http://localhost:8080/user/deleteVehicle", {
+        const response = await fetch(`${BASE_URL}/user/deleteVehicle`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -66,7 +67,7 @@ export default function General({ darkMode }) {
     const fetchUserData = async () => {
       const token = localStorage.getItem("token"); // Get JWT token
       try {
-        const response = await fetch("http://localhost:8080/user/getUser", {
+        const response = await fetch(`${BASE_URL}/user/getUser`, {
           method: "GET",
           headers: {
             Authorization: `Bearer ${token}`,
@@ -115,7 +116,7 @@ export default function General({ darkMode }) {
     const token = localStorage.getItem("token");
     const newVehicle = { plateNo: newPlate, carModel: newCarName };
     try {
-      const response = await fetch("http://localhost:8080/user/addVehicles", {
+      const response = await fetch(`${BASE_URL}/user/addVehicles`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -138,7 +139,7 @@ export default function General({ darkMode }) {
   const handleUpdateUserInfo = async () => {
     const token = localStorage.getItem("token");
     try {
-      const response = await fetch("http://localhost:8080/user/updateDetails", {
+      const response = await fetch(`${BASE_URL}/user/updateDetails`, {
         method: "PUT",
         headers: {
           Authorization: `Bearer ${token}`,
@@ -166,7 +167,7 @@ export default function General({ darkMode }) {
       ) {
         console.log("Username changed, fetching new token...");
         const newTokenResponse = await fetch(
-          "http://localhost:8080/public/refresh-token",
+          `${BASE_URL}/public/refresh-token`,
           {
             method: "POST",
             headers: { "Content-Type": "application/json" },
@@ -193,9 +194,9 @@ export default function General({ darkMode }) {
     const token = localStorage.getItem("token");
     let url = "";
     if (field === "email") {
-      url = "http://localhost:8080/user/sendOTPEmail";
+      url = `${BASE_URL}/user/sendOTPEmail`;
     } else if (field === "phone") {
-      url = "http://localhost:8080/user/sendOTPPhone";
+      url = `${BASE_URL}/user/sendOTPPhone`;
     }
     try {
       const response = await fetch(url, {
@@ -232,9 +233,9 @@ export default function General({ darkMode }) {
     let url = "";
     let body = { otp };
     if (verifyingField === "email") {
-      url = "http://localhost:8080/user/verifyEmail";
+      url = `${BASE_URL}/user/verifyEmail`;
     } else if (verifyingField === "phone") {
-      url = "http://localhost:8080/user/verifyPhone";
+      url = `${BASE_URL}/user/verifyPhone`;
     }
     try {
       const response = await fetch(url, {

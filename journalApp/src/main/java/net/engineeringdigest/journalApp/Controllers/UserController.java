@@ -22,7 +22,6 @@ import java.util.List;
 @RestController
 @RequestMapping("/user")
 @Slf4j
-@CrossOrigin(origins = "http://localhost:5173")
 public class UserController {
 	
 	@Autowired

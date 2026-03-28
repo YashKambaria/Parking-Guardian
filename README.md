@@ -41,6 +41,94 @@ The application uses a decoupled Client-Server architecture utilizing a modern t
 - **Messaging**: Integrated with the **Twilio API** to deliver low-latency SMS to vehicle owners.
 - **Mailing**: `JavaMailSender` handling SMTP routing over Gmail to serve fallback emails and OTP codes.
 
+## 🛠 Setup Guide (Local Development)
+
+### 1. Prerequisites
+- **Node.js**: v18+ recommended
+- **npm**: comes with Node.js
+- **Java**: JDK 8 (project currently targets Java 1.8)
+- **Maven**: not required globally (project includes Maven Wrapper)
+- **MongoDB**: local instance or MongoDB Atlas connection string
+
+### 2. Clone the Project
+```bash
+git clone https://github.com/YashKambaria/Parking-Guardian
+cd "Parking Guardian"
+```
+
+### 3. Backend Setup (Spring Boot)
+
+Go to the backend folder:
+```bash
+cd journalApp
+```
+
+Set required environment variables (macOS/Linux):
+```bash
+export MONGO_URI="mongodb+srv://<username>:<password>@<cluster>/<db>?retryWrites=true&w=majority"
+export EMAIL="your-email@gmail.com"
+export PASSWORD="your-email-app-password"
+export SID="your-twilio-account-sid"
+export ID="your-twilio-auth-token"
+export NUMBER="+1XXXXXXXXXX"
+export KEY="your-jwt-secret-key"
+```
+
+Environment variable reference:
+- `MONGO_URI`: MongoDB connection URI
+- `EMAIL`: sender email used by `JavaMailSender`
+- `PASSWORD`: email app password (not normal mailbox password)
+- `SID`: Twilio Account SID
+- `ID`: Twilio Auth Token
+- `NUMBER`: Twilio phone number used to send SMS/calls
+- `KEY`: JWT signing key used for token generation/validation
+
+Run backend:
+```bash
+./mvnw spring-boot:run
+```
+
+Backend default URL:
+- `http://localhost:8080`
+
+### 4. Frontend Setup (React + Vite)
+
+Open a new terminal and go to frontend folder:
+```bash
+cd frontend
+npm install
+```
+
+Frontend API base URL is centralized in:
+- `src/config.js`
+
+Current setup uses:
+```js
+export const BASE_URL = "http://localhost:8080";
+```
+
+If your backend runs on a different host/port, update only this one value in `src/config.js`.
+
+Run frontend:
+```bash
+npm run dev
+```
+
+Frontend default URL:
+- `http://localhost:5173`
+
+### 5. Quick Run Checklist
+1. Start MongoDB (or ensure Atlas URI is reachable).
+2. Export backend environment variables.
+3. Start backend from `journalApp`.
+4. Start frontend from `frontend`.
+5. Open `http://localhost:5173` in browser.
+
+### 6. Notes on Configuration
+- The backend secrets are read from environment variables in `journalApp/src/main/resources/application.yml`.
+- The frontend does **not** require a `.env` file right now; API host is controlled via `src/config.js`.
+- Never commit real credentials (Twilio token, email password, JWT key, Mongo URI) to Git.
+
 ## 🚀 How It Works
 1. **Sign Up / Register Vehicle**: A user creates an account and ties their license plate to their contact info.
 2. **User Gets Blocked**: Someone gets their driveway blocked by a car. They enter the license plate on the Parking Guardian portal.

@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useLayoutEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import axios from "axios";
+import { BASE_URL } from "./config";
 
 export default function Service({ darkMode }) {
   const [stateCode, setStateCode] = useState("GJ");
@@ -95,8 +96,8 @@ export default function Service({ darkMode }) {
         try {
           const url =
             type === "sms"
-              ? "http://localhost:8080/userServices/sendSMS"
-              : "http://localhost:8080/userServices/UrgentCall";
+              ? `${BASE_URL}/userServices/sendSMS`
+              : `${BASE_URL}/userServices/UrgentCall`;
           const data = await axios.post(url, requestBody, {
             headers: {
               Authorization: `Bearer ${token}`,
